@@ -1,3 +1,13 @@
+<!-- 
+ 
+
+
+
+
+-->
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +15,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>CSC Integration Quest</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petto:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
@@ -42,17 +53,24 @@ body{
 a{color:inherit;}
 button{font-family:inherit;cursor:pointer;}
 textarea,input{font-family:inherit;}
+
+/* focus visibility */
 button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible{
   outline:2px solid var(--yellow);
   outline-offset:2px;
 }
+
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
 }
+
+/* ============ LAYOUT SHELLS ============ */
 #app{min-height:100vh; position:relative; width:100%;}
 .screen{min-height:100vh; width:100%; display:flex; flex-direction:column;}
 .wrap{width:100%; max-width:860px; margin:0 auto; padding:0 24px;}
 .wrap-wide{width:100%; max-width:1180px; margin:0 auto; padding:0 24px;}
+
+/* background texture: faint grid + glow, no external images */
 .bg-field{
   position:fixed; inset:0; z-index:0; pointer-events:none;
   background:
@@ -69,13 +87,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
   background-size:46px 46px;
   mask-image:radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 78%);
 }
+
+/* ============ CLIP-CORNER SYSTEM (brand geometry, echoes the logo's cut letterforms) ============ */
 .cut{clip-path:polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);}
 .cut-rev{clip-path:polygon(0 16px, 16px 0, 100% 0, 100% 100%, 0 100%);}
 .cut-sm{clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);}
 .cut-both{clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));}
+
+/* ============ LOGO ============ */
 .logo-img{display:block; height:34px; width:auto; filter:drop-shadow(0 0 14px rgba(244,193,15,0.18));}
 .logo-img.lg{height:76px;}
 .logo-img.xl{height:104px;}
+
+/* ============ TOP HUD ============ */
 .hud{
   position:sticky; top:0; z-index:40;
   background:rgba(7,8,10,0.82);
@@ -100,6 +124,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
   font-size:11px; padding:6px 9px; letter-spacing:0.04em;
 }
 .lang-btn.active{border-color:var(--yellow); color:var(--yellow); background:rgba(244,193,15,0.08);}
+
+/* ============ BUTTONS ============ */
 .btn{
   font-family:var(--font-display);
   font-weight:600;
@@ -122,6 +148,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 }
 .btn-ghost:hover{border-color:var(--text-dim); background:rgba(255,255,255,0.03);}
 .btn-sm{padding:10px 18px; font-size:12px;}
+
+/* ============ WELCOME ============ */
 .welcome-screen{min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative; z-index:1; padding:60px 24px;}
 .welcome-inner{text-align:center; max-width:640px; margin:0 auto;}
 .welcome-kicker{
@@ -151,6 +179,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 .lang-card:hover{border-color:var(--yellow); color:var(--text);}
 .lang-card.selected{border-color:var(--yellow); color:var(--yellow); background:rgba(244,193,15,0.07);}
 .welcome-logo-wrap{margin-bottom:30px; display:flex; justify-content:center;}
+
+/* ============ MAP ============ */
 .map-screen{padding:44px 0 90px; position:relative; z-index:1;}
 .map-head{text-align:center; margin-bottom:56px;}
 .map-title{font-family:var(--font-display); font-size:clamp(26px,4.4vw,38px); font-weight:700; margin:0 0 10px; letter-spacing:0.01em;}
@@ -196,6 +226,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 .map-node.completed .map-node-status{color:var(--success);}
 .map-node.unlocked .map-node-status{color:var(--yellow);}
 .map-node.locked .map-node-status{color:var(--text-dim-2);}
+
+/* ============ LEVEL PAGES ============ */
 .level-screen{flex:1; display:flex; align-items:center; justify-content:center; padding:56px 24px 80px; position:relative; z-index:1;}
 .level-inner{width:100%; max-width:680px;}
 .level-eyebrow{font-size:11px; letter-spacing:0.14em; color:var(--yellow); margin-bottom:14px; display:flex; align-items:center; gap:10px;}
@@ -209,6 +241,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [tabindex]:fo
 .text-input:focus{border-color:var(--yellow);}
 .text-input::placeholder{color:var(--text-dim-2);}
 textarea.text-input{resize:vertical; min-height:100px; line-height:1.5;}
+
 .choice-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px;}
 .choice-card{
   background:var(--bg-elev); border:1px solid var(--border); padding:16px 14px;
@@ -216,6 +249,7 @@ textarea.text-input{resize:vertical; min-height:100px; line-height:1.5;}
 }
 .choice-card:hover{border-color:var(--text-dim);}
 .choice-card.selected{border-color:var(--yellow); color:var(--yellow); background:rgba(244,193,15,0.07); box-shadow:inset 0 0 0 1px rgba(244,193,15,0.2);}
+
 .char-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;}
 .char-card{
   background:var(--bg-elev); border:1px solid var(--border); padding:20px; text-align:left; transition:all 140ms ease;
@@ -226,6 +260,7 @@ textarea.text-input{resize:vertical; min-height:100px; line-height:1.5;}
 .char-icon{font-size:26px; margin-bottom:10px; display:block;}
 .char-name{font-family:var(--font-display); font-weight:600; font-size:14px; letter-spacing:0.02em; margin-bottom:5px;}
 .char-desc{font-size:12.5px; color:var(--text-dim); line-height:1.4;}
+
 .skill-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:32px;}
 .skill-chip{
   background:var(--bg-elev); border:1px solid var(--border); padding:13px 10px; text-align:center;
@@ -233,6 +268,7 @@ textarea.text-input{resize:vertical; min-height:100px; line-height:1.5;}
 }
 .skill-chip:hover{border-color:var(--text-dim);}
 .skill-chip.selected{border-color:var(--yellow); color:var(--yellow); background:rgba(244,193,15,0.08);}
+
 .icebreak-card{
   background:var(--bg-elev); border:1px solid var(--border); padding:32px 28px; margin-bottom:28px; position:relative; overflow:hidden;
 }
@@ -240,8 +276,11 @@ textarea.text-input{resize:vertical; min-height:100px; line-height:1.5;}
 .icebreak-q{font-family:var(--font-display); font-size:19px; font-weight:600; line-height:1.4;}
 .icebreak-q.spin{animation:qspin 420ms ease;}
 @keyframes qspin{0%{opacity:0; transform:translateY(6px);}100%{opacity:1; transform:translateY(0);}}
+
 .level-actions{display:flex; justify-content:space-between; align-items:center; margin-top:36px; gap:14px;}
 .level-hint{font-size:12px; color:var(--text-dim-2);}
+
+/* ============ FINAL / CELEBRATION ============ */
 .final-screen{min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative; z-index:1; padding:60px 24px; text-align:center;}
 .final-trophy{font-size:52px; margin-bottom:22px; display:inline-block; animation:trophyIn 700ms cubic-bezier(.2,1.4,.4,1);}
 @keyframes trophyIn{0%{transform:scale(0) rotate(-20deg); opacity:0;}100%{transform:scale(1) rotate(0); opacity:1;}}
@@ -249,6 +288,8 @@ textarea.text-input{resize:vertical; min-height:100px; line-height:1.5;}
 .final-title{font-family:var(--font-display); font-weight:700; font-size:clamp(28px,5vw,42px); margin:0 0 14px;}
 .final-sub{color:var(--text-dim); font-size:14px; letter-spacing:0.05em; margin-bottom:40px;}
 #confetti-canvas{position:fixed; inset:0; z-index:30; pointer-events:none;}
+
+/* ============ PROFILE CARD ============ */
 .profile-screen{padding:70px 24px 90px; position:relative; z-index:1;}
 .profile-card{
   max-width:460px; margin:0 auto; background:var(--bg-elev);
@@ -280,6 +321,8 @@ textarea.text-input{resize:vertical; min-height:100px; line-height:1.5;}
 .profile-completion-ring::before{content:""; position:absolute; inset:4px; border-radius:50%; background:var(--bg-elev);}
 .profile-completion-ring span{position:relative; z-index:1;}
 .profile-below-actions{max-width:460px; margin:22px auto 0; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+
+/* ============ ADMIN ============ */
 .admin-screen{position:relative; z-index:1; padding:0 0 90px;}
 .admin-top{
   border-bottom:1px solid var(--border-soft); padding:28px 0;
@@ -319,9 +362,13 @@ table.admin-table{width:100%; border-collapse:collapse; font-size:13px; min-widt
 .chart-card.wide{grid-column:span 2;}
 .chart-holder{position:relative; height:190px;}
 .admin-footer-link{margin-top:36px; text-align:center;}
+
+/* ============ FOOT NAV within levels ============ */
 .top-strip{padding:20px 0 0;}
 .back-link{font-size:12px; color:var(--text-dim); display:inline-flex; align-items:center; gap:6px; background:none; border:none; padding:6px 0;}
 .back-link:hover{color:var(--yellow);}
+
+/* ============ RESPONSIVE ============ */
 @media (max-width:760px){
   .stat-grid{grid-template-columns:repeat(2,1fr);}
   .charts-grid{grid-template-columns:1fr;}
@@ -335,8 +382,10 @@ table.admin-table{width:100%; border-collapse:collapse; font-size:13px; min-widt
   .lang-btn{padding:5px 7px; font-size:10px;}
   .hud-inner{gap:10px; padding:12px 16px;}
 }
+
 .fade-in{animation:fadeIn 420ms ease both;}
 @keyframes fadeIn{from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:translateY(0);}}
+
 .toast{
   position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
   background:var(--bg-elev); border:1px solid var(--yellow); color:var(--text);
@@ -357,17 +406,18 @@ table.admin-table{width:100%; border-collapse:collapse; font-size:13px; min-widt
 "use strict";
 
 /* ===================================================================
-   LOGO
+   DATA
 =================================================================== */
+/* NOTE: the original file embedded a large base64 PNG logo here.
+   To keep this file easy to review/edit, it's replaced with a small inline SVG mark.
+   Swap LOGO_SRC back to your own "data:image/png;base64,...." string if you want the exact original logo. */
 var LOGO_SRC = "data:image/svg+xml;utf8," + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40">' +
-  '<text x="0" y="28" font-family="Chakra Petch, sans-serif" font-size="24" font-weight="700" fill="#f4c10f">CSC</text>' +
+  '<svg xmlns="http://www.w3.org/2000/svg" width="140" height="40" viewBox="0 0 140 40">' +
+  '<rect x="1" y="1" width="138" height="38" fill="none" stroke="#f4c10f" stroke-width="2"/>' +
+  '<text x="70" y="26" text-anchor="middle" font-family="Chakra Petch, sans-serif" font-weight="700" font-size="18" fill="#f4c10f">CSC</text>' +
   '</svg>'
 );
 
-/* ===================================================================
-   I18N
-=================================================================== */
 var I18N = {
 en:{
   dir:"ltr",
@@ -515,84 +565,48 @@ var SEED_CHARS = ["strategist","creator","builder","speaker","teamplayer","explo
 var SEED_SKILLS = ["dev","ai","data","design","speak","social","video","solve","team","marketing"];
 
 /* ===================================================================
-   API HELPERS (FastAPI)
-=================================================================== */
-var API_BASE = "";
-var PLAYER_ID_KEY = "csc_quest_player_id_v1";
-
-function getOrCreatePlayerId(){
-  var id = null;
-  try{ id = localStorage.getItem(PLAYER_ID_KEY); }catch(e){}
-  if(!id){
-    id = "p-" + Math.random().toString(36).slice(2,10);
-    try{ localStorage.setItem(PLAYER_ID_KEY, id); }catch(e){}
-  }
-  return id;
-}
-
-function apiSavePlayer(player){
-  return fetch(API_BASE + "/api/students", {
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({
-      id: player.id,
-      name: player.name || "New Explorer",
-      field: player.field || "",
-      year: player.year || "",
-      language: player.language || "en",
-      levelIndex: player.levelIndex || 0,
-      xp: player.xp || 0,
-      completed: !!player.completed,
-      character: player.characters || [],
-      skills: player.skills || [],
-      contribution: player.contribution || "",
-      icebreakerQ: player.icebreakerQ || "",
-      icebreakerA: player.icebreakerA || "",
-      badge: player.badge || "",
-      createdAt: player.createdAt || new Date().toISOString()
-    })
-  }).then(function(r){ return r.json(); })
-    .catch(function(err){ console.error("Save error:", err); });
-}
-
-function apiLoadStudents(){
-  return fetch(API_BASE + "/api/students")
-    .then(function(r){ return r.json(); })
-    .catch(function(err){ console.error("Load error:", err); return []; });
-}
-
-function apiLoadPlayer(id){
-  return fetch(API_BASE + "/api/students/" + encodeURIComponent(id))
-    .then(function(r){ if(!r.ok) return null; return r.json(); })
-    .then(function(d){
-      if(!d) return null;
-      return {
-        id: d.id,
-        name: d.name || "",
-        field: d.field || "",
-        year: d.year || "",
-        characters: d.character || [],
-        skills: d.skills || [],
-        contribution: d.contribution || "",
-        icebreakerQ: d.icebreakerQ || "",
-        icebreakerA: d.icebreakerA || "",
-        xp: d.xp || 0,
-        levelIndex: d.levelIndex || 0,
-        completed: !!d.completed,
-        badge: d.badge || "",
-        createdAt: d.createdAt || new Date().toISOString(),
-        language: d.language || "en"
-      };
-    })
-    .catch(function(err){ console.error("Load player error:", err); return null; });
-}
-
-/* ===================================================================
    STATE
 =================================================================== */
+var PLAYER_KEY = "csc_quest_player_v1";
+
+/* ---------------------------------------------------------------
+   Shared student data now lives in the FastAPI + SQLite backend,
+   not in localStorage. All browsers/devices read/write the same
+   /api/students endpoint, so the admin dashboard is truly shared.
+--------------------------------------------------------------- */
+async function fetchStudents(){
+  try{
+    var res = await fetch('/api/students');
+    if(res.ok){
+      STATE.students = await res.json();
+    }
+  }catch(e){
+    console.error("Failed to load students from server:", e);
+  }
+  STATE.studentsLoaded = true;
+  if(STATE.screen === "admin") render();
+}
+
+function upsertStudent(student){
+  fetch('/api/students', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(student)
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(){
+    // refresh local cache so this browser's own view stays correct too
+    fetchStudents();
+  })
+  .catch(function(err){
+    console.error("Failed to save student to server:", err);
+    showToast("⚠ Could not save — check your connection");
+  });
+}
+
 function defaultPlayer(){
   return {
-    id: getOrCreatePlayerId(),
+    id: "p-" + Math.random().toString(36).slice(2,10),
     name:"", field:"", year:"",
     characters:[], skills:[], contribution:"",
     icebreakerQ:"", icebreakerA:"",
@@ -601,27 +615,29 @@ function defaultPlayer(){
   };
 }
 function loadPlayer(){
+  try{
+    var raw = localStorage.getItem(PLAYER_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
   return defaultPlayer();
 }
 function savePlayer(p){
-  // Conservé pour compatibilité — les vraies sauvegardes passent par persistProgress()
+  try{ localStorage.setItem(PLAYER_KEY, JSON.stringify(p)); }catch(e){}
 }
 
 var STATE = {
   screen:"welcome",
   lang: (function(){ try{ return localStorage.getItem("csc_quest_lang") || "en"; }catch(e){ return "en"; } })(),
   player: loadPlayer(),
-  admin:{ search:"", field:"all", year:"all", lang:"all", level:"all", status:"all" }
+  admin:{ search:"", field:"all", year:"all", lang:"all", level:"all", status:"all" },
+  students: [],
+  studentsLoaded: false
 };
 STATE.player.language = STATE.lang;
 
 function t(){ return I18N[STATE.lang]; }
 function setScreen(s){ STATE.screen = s; window.scrollTo(0,0); render(); }
 function persist(){ savePlayer(STATE.player); }
-
-function persistProgress(){
-  return apiSavePlayer(STATE.player);
-}
 
 function showToast(msg){
   var el = document.getElementById("toast");
@@ -741,7 +757,7 @@ function renderMap(){
 }
 
 /* ===================================================================
-   LEVEL 0
+   LEVEL 0 — WHO ARE YOU
 =================================================================== */
 function renderLevel0(){
   var d = t().level0;
@@ -778,7 +794,7 @@ function renderLevel0(){
 }
 
 /* ===================================================================
-   LEVEL 1
+   LEVEL 1 — CHARACTER
 =================================================================== */
 function renderLevel1(){
   var d = t().level1;
@@ -812,7 +828,7 @@ function renderLevel1(){
 }
 
 /* ===================================================================
-   LEVEL 2
+   LEVEL 2 — SKILLS
 =================================================================== */
 function renderLevel2(){
   var d = t().level2;
@@ -844,17 +860,15 @@ function renderLevel2(){
 }
 
 /* ===================================================================
-   LEVEL 3
+   LEVEL 3 — ICEBREAKER
 =================================================================== */
 function renderLevel3(){
   var d = t().level3;
   var p = STATE.player;
-  if(p.icebreakerQIdx === undefined || p.icebreakerQIdx === null){
+  if(!p.icebreakerQIdx && p.icebreakerQIdx !== 0){
     p.icebreakerQIdx = Math.floor(Math.random()*d.questions.length);
-    p.icebreakerQ = d.questions[p.icebreakerQIdx];
   }
   var q = d.questions[p.icebreakerQIdx];
-  p.icebreakerQ = q;
   var canSubmit = p.icebreakerA.trim().length > 2;
   return (
     '<div class="screen fade-in">' + hud() +
@@ -879,7 +893,7 @@ function renderLevel3(){
 }
 
 /* ===================================================================
-   FINAL
+   FINAL / CELEBRATION
 =================================================================== */
 function renderFinal(){
   var d = t().final;
@@ -958,27 +972,25 @@ function renderProfile(){
    ADMIN
 =================================================================== */
 var charts = {};
-var allStudentsCache = [];
-
 function destroyCharts(){
   Object.keys(charts).forEach(function(k){ if(charts[k]) charts[k].destroy(); });
   charts = {};
 }
 
-function getFilteredStudents(students){
+function filteredStudents(){
+  var db = STATE.students;
   var f = STATE.admin;
-  return students.filter(function(s){
-    var matchSearch = !f.search ||
-      (s.name && s.name.toLowerCase().indexOf(f.search.toLowerCase()) >= 0);
-    var matchField = f.field === "all" || s.field === f.field;
-    var matchYear  = f.year  === "all" || s.year  === f.year;
-    var matchLang  = f.lang  === "all" || s.language === f.lang;
-    var matchLevel = f.level === "all" || String(s.levelIndex) === f.level;
-    var matchStatus = true;
-    if(f.status === "completed") matchStatus = !!s.completed;
-    else if(f.status === "progress") matchStatus = !s.completed && s.levelIndex > 0;
-    else if(f.status === "new") matchStatus = s.levelIndex === 0;
-    return matchSearch && matchField && matchYear && matchLang && matchLevel && matchStatus;
+  return db.filter(function(s){
+    if(f.search && s.name.toLowerCase().indexOf(f.search.toLowerCase()) === -1) return false;
+    if(f.field !== "all" && s.field !== f.field) return false;
+    if(f.year !== "all" && s.year !== f.year) return false;
+    if(f.lang !== "all" && s.language !== f.lang) return false;
+    if(f.level !== "all" && String(s.levelIndex) !== f.level) return false;
+    if(f.status !== "all"){
+      var st = s.completed ? "completed" : (s.levelIndex>0 ? "progress" : "new");
+      if(st !== f.status) return false;
+    }
+    return true;
   });
 }
 
@@ -991,37 +1003,47 @@ function statusPill(s){
 
 function renderAdmin(){
   var d = t().admin;
-  var filtered = getFilteredStudents(allStudentsCache);
-
-  var total = allStudentsCache.length;
-  var completed = allStudentsCache.filter(function(s){ return s.completed; }).length;
-  var inprogress = allStudentsCache.filter(function(s){ return !s.completed && s.levelIndex > 0; }).length;
-  var today = allStudentsCache.filter(function(s){
-    if(!s.createdAt) return false;
-    return new Date(s.createdAt).toDateString() === new Date().toDateString();
+  var all = STATE.students;
+  var total = all.length;
+  var completed = all.filter(function(s){return s.completed;}).length;
+  var inprogress = all.filter(function(s){return !s.completed && s.levelIndex>0;}).length;
+  var today = all.filter(function(s){
+    var dt = new Date(s.createdAt); var now = new Date();
+    return dt.toDateString() === now.toDateString();
   }).length;
 
-  var rows = filtered.length === 0
-    ? '<tr><td colspan="8" class="admin-empty">'+d.empty+'</td></tr>'
-    : filtered.map(function(s){
-        return '<tr>' +
-          '<td>'+esc(s.name)+'</td>' +
-          '<td>'+esc(s.field)+'</td>' +
-          '<td>'+esc(s.year)+'</td>' +
-          '<td>'+esc((s.language||"en").toUpperCase())+'</td>' +
-          '<td>'+s.levelIndex+'/5</td>' +
-          '<td>'+s.xp+'</td>' +
-          '<td>'+statusPill(s)+'</td>' +
-          '<td>'+(s.createdAt ? new Date(s.createdAt).toLocaleDateString() : "—")+'</td>' +
-        '</tr>';
-      }).join("");
+  var list = filteredStudents();
+  var fieldOptions = Array.from(new Set(all.map(function(s){return s.field;})));
+  var yearOptions = Array.from(new Set(all.map(function(s){return s.year;})));
+
+  var rows = list.map(function(s){
+    var joined = new Date(s.createdAt);
+    var dstr = joined.toLocaleDateString(STATE.lang==="ar" ? "ar" : (STATE.lang==="fr"?"fr-FR":"en-US"), {year:"numeric",month:"short",day:"numeric"});
+    return (
+      '<tr>' +
+        '<td style="color:var(--text);font-weight:500;">'+esc(s.name)+'</td>' +
+        '<td>'+esc(s.field)+'</td>' +
+        '<td>'+esc(s.year)+'</td>' +
+        '<td>'+s.language.toUpperCase()+'</td>' +
+        '<td>Lvl '+s.levelIndex+'</td>' +
+        '<td>'+s.xp+' XP</td>' +
+        '<td>'+statusPill(s)+'</td>' +
+        '<td>'+dstr+'</td>' +
+      '</tr>'
+    );
+  }).join('');
 
   return (
     '<div class="screen admin-screen fade-in">' +
-      hud(false) +
+      '<div class="hud"><div class="hud-inner">' +
+        '<button data-action="gomap" style="background:none;border:none;padding:0;display:flex;align-items:center;">'+logoImg()+'</button>' +
+        '<div class="hud-spacer"></div>' +
+        '<span class="pill pill-progress" style="display:flex;align-items:center;gap:6px;"><span class="status-dot" style="background:var(--yellow);"></span>'+d.live+'</span>' +
+        langSwitcherHUD() +
+      '</div></div>' +
       '<div class="admin-top"><div class="wrap-wide admin-top-inner">' +
-        '<div><h1 class="admin-title">'+d.title+'</h1><p class="admin-sub">'+d.subtitle+'</p></div>' +
-        '<button class="btn btn-ghost cut-sm" data-action="leaveadmin">'+d.backToQuest+'</button>' +
+        '<div><h2 class="admin-title">'+d.title+'</h2><p class="admin-sub">'+d.subtitle+'</p></div>' +
+        '<button class="btn btn-ghost btn-sm cut-sm" data-action="gomap">'+d.backToQuest+'</button>' +
       '</div></div>' +
       '<div class="wrap-wide">' +
         '<div class="stat-grid">' +
@@ -1032,25 +1054,45 @@ function renderAdmin(){
         '</div>' +
         '<div class="admin-controls">' +
           '<input class="admin-search" type="text" placeholder="'+d.search+'" value="'+esc(STATE.admin.search)+'" data-action="adminsearch">' +
+          '<select class="admin-select" data-action="adminfield">' +
+            '<option value="all">'+d.allFields+'</option>' +
+            fieldOptions.map(function(f){return '<option value="'+esc(f)+'" '+(STATE.admin.field===f?'selected':'')+'>'+esc(f)+'</option>';}).join('') +
+          '</select>' +
+          '<select class="admin-select" data-action="adminyear">' +
+            '<option value="all">'+d.allYears+'</option>' +
+            yearOptions.map(function(y){return '<option value="'+esc(y)+'" '+(STATE.admin.year===y?'selected':'')+'>'+esc(y)+'</option>';}).join('') +
+          '</select>' +
+          '<select class="admin-select" data-action="adminlang">' +
+            '<option value="all">'+d.allLang+'</option>' +
+            '<option value="fr" '+(STATE.admin.lang==="fr"?'selected':'')+'>FR</option>' +
+            '<option value="en" '+(STATE.admin.lang==="en"?'selected':'')+'>EN</option>' +
+            '<option value="ar" '+(STATE.admin.lang==="ar"?'selected':'')+'>AR</option>' +
+          '</select>' +
+          '<select class="admin-select" data-action="adminlevel">' +
+            '<option value="all">'+d.allLevels+'</option>' +
+            [0,1,2,3,4].map(function(l){return '<option value="'+l+'" '+(STATE.admin.level===String(l)?'selected':'')+'>Lvl '+l+'</option>';}).join('') +
+          '</select>' +
           '<select class="admin-select" data-action="adminstatus">' +
             '<option value="all">'+d.allStatus+'</option>' +
-            '<option value="completed" '+(STATE.admin.status==="completed"?"selected":"")+'>'+d.statusCompleted+'</option>' +
-            '<option value="progress" '+(STATE.admin.status==="progress"?"selected":"")+'>'+d.statusProgress+'</option>' +
-            '<option value="new" '+(STATE.admin.status==="new"?"selected":"")+'>'+d.statusNew+'</option>' +
+            '<option value="completed" '+(STATE.admin.status==="completed"?'selected':'')+'>'+d.statusCompleted+'</option>' +
+            '<option value="progress" '+(STATE.admin.status==="progress"?'selected':'')+'>'+d.statusProgress+'</option>' +
+            '<option value="new" '+(STATE.admin.status==="new"?'selected':'')+'>'+d.statusNew+'</option>' +
           '</select>' +
         '</div>' +
-        '<div class="admin-table-wrap"><table class="admin-table">' +
-          '<thead><tr>' +
-            '<th>'+d.name+'</th><th>'+d.fieldCol+'</th><th>'+d.yearCol+'</th>' +
-            '<th>'+d.langCol+'</th><th>'+d.levelCol+'</th><th>'+d.xpCol+'</th>' +
-            '<th>'+d.statusCol+'</th><th>'+d.joinedCol+'</th>' +
-          '</tr></thead>' +
-          '<tbody>'+rows+'</tbody>' +
-        '</table></div>' +
-        '<div class="charts-grid" style="margin-top:30px;">' +
+        '<div class="admin-table-wrap">' +
+          (list.length ? (
+          '<table class="admin-table"><thead><tr>' +
+            '<th>'+d.name+'</th><th>'+d.fieldCol+'</th><th>'+d.yearCol+'</th><th>'+d.langCol+'</th><th>'+d.levelCol+'</th><th>'+d.xpCol+'</th><th>'+d.statusCol+'</th><th>'+d.joinedCol+'</th>' +
+          '</tr></thead><tbody>'+rows+'</tbody></table>'
+          ) : '<div class="admin-empty">'+d.empty+'</div>') +
+        '</div>' +
+        '<div class="charts-grid">' +
           '<div class="chart-card"><h4>'+d.byLanguage+'</h4><div class="chart-holder"><canvas id="chart-lang"></canvas></div></div>' +
           '<div class="chart-card"><h4>'+d.byField+'</h4><div class="chart-holder"><canvas id="chart-field"></canvas></div></div>' +
           '<div class="chart-card"><h4>'+d.completionRate+'</h4><div class="chart-holder"><canvas id="chart-completion"></canvas></div></div>' +
+          '<div class="chart-card wide"><h4>'+d.byLevel+'</h4><div class="chart-holder"><canvas id="chart-level"></canvas></div></div>' +
+          '<div class="chart-card"><h4>'+d.topCharacter+'</h4><div class="chart-holder"><canvas id="chart-char"></canvas></div></div>' +
+          '<div class="chart-card wide" style="grid-column:span 3;"><h4>'+d.topSkills+'</h4><div class="chart-holder"><canvas id="chart-skills"></canvas></div></div>' +
         '</div>' +
       '</div>' +
     '</div>'
@@ -1058,59 +1100,72 @@ function renderAdmin(){
 }
 
 function mountAdminCharts(){
+  if(typeof Chart === "undefined") return;
   destroyCharts();
-  var students = allStudentsCache;
-  if(!students || !students.length) return;
+  var all = STATE.students;
+  var d = t().admin;
+  if(!all.length){ return; }
+  Chart.defaults.color = "#96969c";
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.font.size = 11;
+  var yellow = "#f4c10f", orange = "#e8752d", cream = "#f3ecc7", grid = "rgba(255,255,255,0.06)";
 
-  var langCounts = {};
-  students.forEach(function(s){
-    var k = (s.language || "en").toUpperCase();
-    langCounts[k] = (langCounts[k] || 0) + 1;
+  // language
+  var langCounts = {fr:0,en:0,ar:0};
+  all.forEach(function(s){ if(langCounts[s.language] !== undefined) langCounts[s.language]++; });
+  charts.lang = new Chart(document.getElementById("chart-lang"), {
+    type:"doughnut",
+    data:{ labels:["FR","EN","AR"], datasets:[{ data:[langCounts.fr,langCounts.en,langCounts.ar], backgroundColor:[orange,yellow,cream], borderColor:"#111217", borderWidth:2 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom", labels:{boxWidth:10,padding:12}}} }
   });
-  var ctx1 = document.getElementById("chart-lang");
-  if(ctx1){
-    charts.lang = new Chart(ctx1, {
-      type:"doughnut",
-      data:{
-        labels:Object.keys(langCounts),
-        datasets:[{ data:Object.values(langCounts),
-          backgroundColor:["#f4c10f","#e8752d","#5fc383"] }]
-      },
-      options:{ responsive:true, maintainAspectRatio:false }
-    });
-  }
 
+  // field
   var fieldCounts = {};
-  students.forEach(function(s){
-    var k = s.field || "—";
-    fieldCounts[k] = (fieldCounts[k] || 0) + 1;
+  all.forEach(function(s){ fieldCounts[s.field] = (fieldCounts[s.field]||0)+1; });
+  var fieldLabels = Object.keys(fieldCounts);
+  charts.field = new Chart(document.getElementById("chart-field"), {
+    type:"bar",
+    data:{ labels:fieldLabels, datasets:[{ data:fieldLabels.map(function(k){return fieldCounts[k];}), backgroundColor:yellow, borderRadius:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false, indexAxis:"y", plugins:{legend:{display:false}}, scales:{x:{grid:{color:grid}, ticks:{precision:0}}, y:{grid:{display:false}}} }
   });
-  var ctx2 = document.getElementById("chart-field");
-  if(ctx2){
-    charts.field = new Chart(ctx2, {
-      type:"bar",
-      data:{
-        labels:Object.keys(fieldCounts),
-        datasets:[{ data:Object.values(fieldCounts), backgroundColor:"#f4c10f" }]
-      },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{ display:false } } }
-    });
-  }
 
-  var done = students.filter(function(s){ return s.completed; }).length;
-  var notDone = students.length - done;
-  var ctx3 = document.getElementById("chart-completion");
-  if(ctx3){
-    charts.completion = new Chart(ctx3, {
-      type:"pie",
-      data:{
-        labels:["Completed","In progress"],
-        datasets:[{ data:[done, notDone], backgroundColor:["#5fc383","#f4c10f"] }]
-      },
-      options:{ responsive:true, maintainAspectRatio:false }
-    });
-  }
+  // completion rate
+  var completed = all.filter(function(s){return s.completed;}).length;
+  var notCompleted = all.length - completed;
+  charts.completion = new Chart(document.getElementById("chart-completion"), {
+    type:"doughnut",
+    data:{ labels:[d.statusCompleted, "Other"], datasets:[{ data:[completed, notCompleted], backgroundColor:[yellow,"#26272d"], borderColor:"#111217", borderWidth:2 }] },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:"70%", plugins:{legend:{position:"bottom", labels:{boxWidth:10,padding:12}}} }
+  });
+
+  // by level
+  var levelCounts = [0,0,0,0,0];
+  all.forEach(function(s){ levelCounts[Math.min(s.levelIndex,4)]++; });
+  charts.level = new Chart(document.getElementById("chart-level"), {
+    type:"bar",
+    data:{ labels:["Lvl 0","Lvl 1","Lvl 2","Lvl 3","Lvl 4"], datasets:[{ data:levelCounts, backgroundColor:orange, borderRadius:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:grid}, ticks:{precision:0}}, x:{grid:{display:false}}} }
+  });
+
+  // top character
+  var charCounts = {};
+  SEED_CHARS.forEach(function(c){ charCounts[c]=0; });
+  all.forEach(function(s){ if(s.character) charCounts[s.character] = (charCounts[s.character]||0)+1; });
+  charts.char = new Chart(document.getElementById("chart-char"), {
+    type:"polarArea",
+    data:{ labels:SEED_CHARS.map(charLabel), datasets:[{ data:SEED_CHARS.map(function(c){return charCounts[c];}), backgroundColor:[yellow,orange,cream,"#c98f3b","#8a6a1f","#d9a441"] }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{r:{grid:{color:grid}, ticks:{display:false}}} }
+  });
+
+  // top skills
+  var skillCounts = {};
+  SEED_SKILLS.forEach(function(s){ skillCounts[s]=0; });
+  all.forEach(function(s){ (s.skills||[]).forEach(function(sk){ skillCounts[sk] = (skillCounts[sk]||0)+1; }); });
+  charts.skills = new Chart(document.getElementById("chart-skills"), {
+    type:"bar",
+    data:{ labels:SEED_SKILLS.map(skillLabel), datasets:[{ data:SEED_SKILLS.map(function(k){return skillCounts[k];}), backgroundColor:yellow, borderRadius:0 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:grid}, ticks:{precision:0}}, x:{grid:{display:false}, ticks:{autoSkip:false, maxRotation:30, minRotation:0}}} }
+  });
 }
 
 /* ===================================================================
@@ -1168,26 +1223,39 @@ function render(){
     case "level3": html = renderLevel3(); break;
     case "final": html = renderFinal(); break;
     case "profile": html = renderProfile(); break;
-    case "admin": html = renderAdmin(); break;
+    case "admin":
+      if(!STATE.studentsLoaded) fetchStudents();
+      html = renderAdmin();
+      break;
     default: html = renderWelcome();
   }
   app.innerHTML = html;
   if(STATE.screen === "final") fireConfetti();
-  if(STATE.screen === "admin"){
-    // Charger les données puis monter les charts
-    apiLoadStudents().then(function(list){
-      allStudentsCache = list;
-      var appEl = document.getElementById("app");
-      appEl.innerHTML = renderAdmin();
-      mountAdminCharts();
-    });
-  }
+  if(STATE.screen === "admin") mountAdminCharts();
 }
 
 /* ===================================================================
    ACTIONS / EVENT DELEGATION
 =================================================================== */
-document.addEventListener("click", async function(e){
+function persistProgress(){
+  persist(); // still fine — local-only player draft (resume point on this device)
+  upsertStudent({
+    id: STATE.player.id,
+    name: STATE.player.name || "New Explorer",
+    field: STATE.player.field || "—",
+    year: STATE.player.year || "—",
+    language: STATE.lang,
+    levelIndex: STATE.player.levelIndex,
+    xp: STATE.player.xp,
+    completed: STATE.player.completed,
+    character: STATE.player.characters[0] || "",
+    skills: STATE.player.skills,
+    badge: STATE.player.badge,
+    createdAt: STATE.player.createdAt
+  });
+}
+
+document.addEventListener("click", function(e){
   var el = e.target.closest("[data-action]");
   if(!el) return;
   var action = el.getAttribute("data-action");
@@ -1198,7 +1266,7 @@ document.addEventListener("click", async function(e){
       STATE.lang = el.getAttribute("data-lang");
       p.language = STATE.lang;
       try{ localStorage.setItem("csc_quest_lang", STATE.lang); }catch(err){}
-      persistProgress();
+      persist();
       render();
       break;
     case "start":
@@ -1207,29 +1275,24 @@ document.addEventListener("click", async function(e){
     case "gomap":
       setScreen("map");
       break;
-    case "leaveadmin":
-      window.location.hash = "";
-      setScreen("welcome");
-      break;
     case "golevel":
       var idx = parseInt(el.getAttribute("data-idx"),10);
       if(idx > p.levelIndex) return;
       if(idx === 4 && !p.completed){
         p.completed = true; p.xp = 1000; p.badge = "CSC EXPLORER";
-        await persistProgress();
+        persistProgress();
       }
       setScreen(LEVEL_KEY_ORDER[idx]);
       break;
     case "setfield":
-      p.field = el.getAttribute("data-val"); render();
+      p.field = el.getAttribute("data-val"); persist(); render();
       break;
     case "setyear":
-      p.year = el.getAttribute("data-val"); render();
+      p.year = el.getAttribute("data-val"); persist(); render();
       break;
     case "submit0":
       if(p.name.trim() && p.field && p.year){
-        p.levelIndex = 1; p.xp += 100;
-        await persistProgress();
+        p.levelIndex = 1; p.xp += 100; persistProgress();
         showToast("+100 XP");
         setScreen("map");
       }
@@ -1238,12 +1301,11 @@ document.addEventListener("click", async function(e){
       var cv = el.getAttribute("data-val");
       var ci = p.characters.indexOf(cv);
       if(ci>=0) p.characters.splice(ci,1); else p.characters.push(cv);
-      render();
+      persist(); render();
       break;
     case "submit1":
       if(p.characters.length){
-        p.levelIndex = 2; p.xp += 150;
-        await persistProgress();
+        p.levelIndex = 2; p.xp += 150; persistProgress();
         showToast("+150 XP");
         setScreen("map");
       }
@@ -1252,20 +1314,18 @@ document.addEventListener("click", async function(e){
       var sv = el.getAttribute("data-val");
       var si = p.skills.indexOf(sv);
       if(si>=0) p.skills.splice(si,1); else p.skills.push(sv);
-      render();
+      persist(); render();
       break;
     case "submit2":
       if(p.skills.length){
-        p.levelIndex = 3; p.xp += 200;
-        await persistProgress();
+        p.levelIndex = 3; p.xp += 200; persistProgress();
         showToast("+200 XP");
         setScreen("map");
       }
       break;
     case "submit3":
       if(p.icebreakerA.trim().length > 2){
-        p.levelIndex = 4; p.xp += 250;
-        await persistProgress();
+        p.levelIndex = 4; p.xp += 250; persistProgress();
         showToast("+250 XP");
         setScreen("map");
       }
@@ -1274,14 +1334,15 @@ document.addEventListener("click", async function(e){
       setScreen("profile");
       break;
     case "restart":
-      try{ localStorage.removeItem(PLAYER_ID_KEY); }catch(e){}
       STATE.player = defaultPlayer();
       STATE.player.language = STATE.lang;
+      persist();
       setScreen("welcome");
       break;
     case "download":
       showToast(STATE.lang==="fr" ? "Fais une capture d'écran de ta carte ✨" : STATE.lang==="ar" ? "التقط لقطة شاشة لبطاقتك ✨" : "Screenshot your card to save it ✨");
       break;
+    case "adminsearch": break; // handled on input
     default: break;
   }
 });
@@ -1293,28 +1354,22 @@ document.addEventListener("input", function(e){
   var p = STATE.player;
   switch(action){
     case "setname":
-      p.name = el.value;
+      p.name = el.value; persist();
       var hudName = document.querySelector(".hud-name");
       if(hudName) hudName.textContent = p.name || "PLAYER";
       var submit0Btn = document.querySelector('[data-action="submit0"]');
       if(submit0Btn) submit0Btn.disabled = !(p.name.trim().length>0 && p.field && p.year);
       break;
     case "setcontribution":
-      p.contribution = el.value;
+      p.contribution = el.value; persist();
       break;
     case "setice":
-      p.icebreakerA = el.value;
+      p.icebreakerA = el.value; persist();
       var btn = document.querySelector('[data-action="submit3"]');
       if(btn) btn.disabled = !(p.icebreakerA.trim().length > 2);
       break;
     case "adminsearch":
-      STATE.admin.search = el.value;
-      clearTimeout(window.__adminSearchT);
-      window.__adminSearchT = setTimeout(function(){
-        var appEl = document.getElementById("app");
-        appEl.innerHTML = renderAdmin();
-        mountAdminCharts();
-      }, 200);
+      STATE.admin.search = el.value; render();
       break;
   }
 });
@@ -1324,50 +1379,36 @@ document.addEventListener("change", function(e){
   var action = el.getAttribute("data-action");
   if(!action) return;
   switch(action){
-    case "adminstatus":
-      STATE.admin.status = el.value;
-      var appEl = document.getElementById("app");
-      appEl.innerHTML = renderAdmin();
-      mountAdminCharts();
-      break;
+    case "adminfield": STATE.admin.field = el.value; render(); break;
+    case "adminyear": STATE.admin.year = el.value; render(); break;
+    case "adminlang": STATE.admin.lang = el.value; render(); break;
+    case "adminlevel": STATE.admin.level = el.value; render(); break;
+    case "adminstatus": STATE.admin.status = el.value; render(); break;
   }
 });
 
-/* ===================================================================
-   HASH ROUTING
-=================================================================== */
-function handleHash(){
-  if(window.location.hash === "#admin"){
+/* hash routing for /admin convenience */
+function checkHash(){
+  if(window.location.hash === "#admin" || window.location.hash === "#/admin"){
     STATE.screen = "admin";
-  } else if(STATE.screen === "admin"){
-    STATE.screen = "welcome";
+    fetchStudents();
   }
-  render();
 }
-window.addEventListener("hashchange", handleHash);
+checkHash();
+window.addEventListener("hashchange", function(){
+  checkHash(); render();
+});
+
+/* Poll for fresh data every 5s while the admin dashboard is open, so a
+   second browser/device sees new submissions without a manual refresh. */
+setInterval(function(){
+  if(STATE.screen === "admin") fetchStudents();
+}, 5000);
 
 /* ===================================================================
    INIT
 =================================================================== */
-async function init(){
-  var id = getOrCreatePlayerId();
-  var loaded = await apiLoadPlayer(id);
-  if(loaded){
-    STATE.player = loaded;
-    if(loaded.language) STATE.lang = loaded.language;
-    // Recalculer l'index de la question icebreaker si déjà répondu
-    if(loaded.icebreakerQ){
-      var qs = t().level3.questions;
-      var qi = qs.indexOf(loaded.icebreakerQ);
-      STATE.player.icebreakerQIdx = qi >= 0 ? qi : 0;
-    }
-  } else {
-    STATE.player.id = id;
-  }
-  if(window.location.hash === "#admin") STATE.screen = "admin";
-  render();
-}
-init();
+render();
 
 })();
 </script>
