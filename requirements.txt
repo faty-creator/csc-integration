@@ -1,2 +1,7 @@
 Flask>=3.0
 qrcode[pil]>=7.4
+fastapi
+uvicorn
+sqlalchemy
+jinja2
+python-multipart

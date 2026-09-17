@@ -1,256 +1,232 @@
 """
-CSC Integration Quest — backend
+CSC Integration Quest — backend FastAPI
 
-Serves the game (templates/csc-integration-quest.html) and persists each
-student's progress to a local SQLite database (csc.db), so the admin
-dashboard (built into the same page, at #admin) can read real data back
-through a small JSON API.
+Sert le jeu (templates/csc-integration-quest.html) et persiste la progression
+de chaque étudiant dans une base SQLite locale (csc.db), pour que le dashboard
+admin (intégré dans la même page, à #admin) lise les vraies données via une
+petite API JSON.
 
-Run:
-    pip install flask
+Installation:
+    pip install fastapi uvicorn sqlalchemy jinja2 python-multipart
+
+Lancer:
     python app.py
 
-Then open:
-    http://127.0.0.1:5000/            -> the quest
-    http://127.0.0.1:5000/#admin      -> the admin dashboard
+Puis ouvrir:
+    http://127.0.0.1:8000/            -> le jeu
+    http://127.0.0.1:8000/#admin      -> le dashboard admin
 """
 
 import json
 import os
-import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime
+from typing import List, Optional
 
-from flask import Flask, g, jsonify, render_template, request
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, create_engine
+from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
-app = Flask(__name__)
-
+# ---------------------------------------------------------------------------
+# Base de données
+# ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE = os.path.join(BASE_DIR, "csc.db")
-app.config["DATABASE"] = DATABASE
+DATABASE_URL = f"sqlite:///{DATABASE}"
 
-init_db()
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+
+class StudentDB(Base):
+    __tablename__ = "students"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False, default="New Explorer")
+    field = Column(String, default="")
+    year = Column(String, default="")
+    language = Column(String, default="en")
+    level_index = Column(Integer, default=0)
+    xp = Column(Integer, default=0)
+    completed = Column(Boolean, default=False)
+    character = Column(Text, default="[]")   # JSON array
+    skills = Column(Text, default="[]")      # JSON array
+    contribution = Column(Text, default="")
+    icebreaker_q = Column(Text, default="")
+    icebreaker_a = Column(Text, default="")
+    badge = Column(String, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+Base.metadata.create_all(bind=engine)
 
 
 # ---------------------------------------------------------------------------
-# Database helpers
+# Schémas Pydantic
 # ---------------------------------------------------------------------------
+class StudentSchema(BaseModel):
+    id: str
+    name: Optional[str] = "New Explorer"
+    field: Optional[str] = ""
+    year: Optional[str] = ""
+    language: Optional[str] = "en"
+    levelIndex: Optional[int] = 0
+    xp: Optional[int] = 0
+    completed: Optional[bool] = False
+    character: Optional[List[str]] = []
+    skills: Optional[List[str]] = []
+    contribution: Optional[str] = ""
+    icebreakerQ: Optional[str] = ""
+    icebreakerA: Optional[str] = ""
+    badge: Optional[str] = ""
+    createdAt: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
+# App FastAPI
+# ---------------------------------------------------------------------------
+app = FastAPI(title="CSC Integration Quest API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
 
 def get_db():
-    """Return a SQLite connection cached on the request context."""
-    if "db" not in g:
-        g.db = sqlite3.connect(DATABASE)
-        g.db.row_factory = sqlite3.Row
-    return g.db
-
-
-@app.teardown_appcontext
-def close_db(exception=None):
-    db = g.pop("db", None)
-    if db is not None:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
         db.close()
 
 
-def init_db():
-    """Create the students table if it doesn't exist yet, and add any
-    columns that are missing from an older version of the table (so an
-    existing csc.db from a previous run never crashes the app)."""
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS students (
-            id            TEXT PRIMARY KEY,
-            name          TEXT NOT NULL,
-            field         TEXT,
-            year          TEXT,
-            language      TEXT,
-            level_index   INTEGER DEFAULT 0,
-            xp            INTEGER DEFAULT 0,
-            completed     INTEGER DEFAULT 0,
-            character     TEXT,
-            skills        TEXT,
-            contribution  TEXT,
-            icebreaker_q  TEXT,
-            icebreaker_a  TEXT,
-            badge         TEXT,
-            created_at    TEXT,
-            updated_at    TEXT
-        )
-        """
-    )
-    conn.commit()
-
-    expected_columns = {
-        "name": "TEXT",
-        "field": "TEXT",
-        "year": "TEXT",
-        "language": "TEXT",
-        "level_index": "INTEGER DEFAULT 0",
-        "xp": "INTEGER DEFAULT 0",
-        "completed": "INTEGER DEFAULT 0",
-        "character": "TEXT",
-        "skills": "TEXT",
-        "contribution": "TEXT",
-        "icebreaker_q": "TEXT",
-        "icebreaker_a": "TEXT",
-        "badge": "TEXT",
-        "created_at": "TEXT",
-        "updated_at": "TEXT",
-    }
-    existing_columns = {
-        row[1] for row in cursor.execute("PRAGMA table_info(students)").fetchall()
-    }
-    for column, col_type in expected_columns.items():
-        if column not in existing_columns:
-            cursor.execute(f"ALTER TABLE students ADD COLUMN {column} {col_type}")
-    conn.commit()
-    conn.close()
-
-
-def row_to_student(row):
-    """Convert a sqlite3.Row into the JSON shape the frontend expects."""
+def row_to_student(row: StudentDB) -> dict:
+    """Convertit une ligne SQLAlchemy en JSON attendu par le frontend."""
     return {
-        "id": row["id"],
-        "name": row["name"],
-        "field": row["field"],
-        "year": row["year"],
-        "language": row["language"],
-        "levelIndex": row["level_index"],
-        "xp": row["xp"],
-        "completed": bool(row["completed"]),
-        "character": row["character"],
-        "skills": json.loads(row["skills"]) if row["skills"] else [],
-        "contribution": row["contribution"],
-        "icebreakerQ": row["icebreaker_q"],
-        "icebreakerA": row["icebreaker_a"],
-        "badge": row["badge"],
-        "createdAt": row["created_at"],
+        "id": row.id,
+        "name": row.name,
+        "field": row.field or "",
+        "year": row.year or "",
+        "language": row.language or "en",
+        "levelIndex": row.level_index or 0,
+        "xp": row.xp or 0,
+        "completed": bool(row.completed),
+        "character": json.loads(row.character) if row.character else [],
+        "skills": json.loads(row.skills) if row.skills else [],
+        "contribution": row.contribution or "",
+        "icebreakerQ": row.icebreaker_q or "",
+        "icebreakerA": row.icebreaker_a or "",
+        "badge": row.badge or "",
+        "createdAt": row.created_at.isoformat() if row.created_at else None,
     }
 
 
 # ---------------------------------------------------------------------------
 # Pages
 # ---------------------------------------------------------------------------
-
-@app.route("/")
-def home():
-    return render_template("csc-integration-quest.html")
-
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="csc-integration-quest.html"
+    )
 
 # ---------------------------------------------------------------------------
 # API
 # ---------------------------------------------------------------------------
-
-@app.route("/api/students", methods=["GET"])
-def list_students():
-    """Used by the admin dashboard to load every student's live progress."""
-    db = get_db()
-    rows = db.execute(
-        "SELECT * FROM students ORDER BY created_at DESC"
-    ).fetchall()
-    return jsonify([row_to_student(r) for r in rows])
+@app.get("/api/students")
+def list_students(db: Session = Depends(get_db)):
+    rows = db.query(StudentDB).order_by(StudentDB.created_at.desc()).all()
+    return [row_to_student(r) for r in rows]
 
 
-@app.route("/api/students/<student_id>", methods=["GET"])
-def get_student(student_id):
-    db = get_db()
-    row = db.execute(
-        "SELECT * FROM students WHERE id = ?", (student_id,)
-    ).fetchone()
+@app.get("/api/students/{student_id}")
+def get_student(student_id: str, db: Session = Depends(get_db)):
+    row = db.query(StudentDB).filter(StudentDB.id == student_id).first()
     if row is None:
-        return jsonify({"error": "not_found"}), 404
-    return jsonify(row_to_student(row))
+        raise HTTPException(status_code=404, detail="not_found")
+    return row_to_student(row)
 
 
-@app.route("/api/students", methods=["POST"])
-def upsert_student():
-    """
-    Called by the game every time a level is completed (an "upsert": insert
-    the student on their first submission, then update the same row as
-    they progress through the quest).
-    """
-    data = request.get_json(silent=True) or {}
-
-    student_id = data.get("id")
-    if not student_id:
-        return jsonify({"error": "missing_id"}), 400
-
-    name = data.get("name", "New Explorer")
-    field = data.get("field", "")
-    year = data.get("year", "")
-    language = data.get("language", "en")
-    level_index = int(data.get("levelIndex", 0))
-    xp = int(data.get("xp", 0))
-    completed = 1 if data.get("completed") else 0
-    character = data.get("character", "")
-    skills = json.dumps(data.get("skills", []))
-    contribution = data.get("contribution", "")
-    icebreaker_q = data.get("icebreakerQ", "")
-    icebreaker_a = data.get("icebreakerA", "")
-    badge = data.get("badge", "")
-    created_at = data.get("createdAt") or datetime.now(timezone.utc).isoformat()
-    updated_at = datetime.now(timezone.utc).isoformat()
-
-    db = get_db()
-    existing = db.execute(
-        "SELECT id FROM students WHERE id = ?", (student_id,)
-    ).fetchone()
+@app.post("/api/students")
+def upsert_student(data: StudentSchema, db: Session = Depends(get_db)):
+    existing = db.query(StudentDB).filter(StudentDB.id == data.id).first()
 
     if existing:
-        db.execute(
-            """
-            UPDATE students SET
-                name = ?, field = ?, year = ?, language = ?, level_index = ?,
-                xp = ?, completed = ?, character = ?, skills = ?,
-                contribution = ?, icebreaker_q = ?, icebreaker_a = ?,
-                badge = ?, updated_at = ?
-            WHERE id = ?
-            """,
-            (
-                name, field, year, language, level_index, xp, completed,
-                character, skills, contribution, icebreaker_q, icebreaker_a,
-                badge, updated_at, student_id,
-            ),
-        )
+        existing.name = data.name
+        existing.field = data.field
+        existing.year = data.year
+        existing.language = data.language
+        existing.level_index = data.levelIndex
+        existing.xp = data.xp
+        existing.completed = data.completed
+        existing.character = json.dumps(data.character or [])
+        existing.skills = json.dumps(data.skills or [])
+        existing.contribution = data.contribution
+        existing.icebreaker_q = data.icebreakerQ
+        existing.icebreaker_a = data.icebreakerA
+        existing.badge = data.badge
+        existing.updated_at = datetime.utcnow()
     else:
-        db.execute(
-            """
-            INSERT INTO students
-                (id, name, field, year, language, level_index, xp, completed,
-                 character, skills, contribution, icebreaker_q, icebreaker_a,
-                 badge, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                student_id, name, field, year, language, level_index, xp,
-                completed, character, skills, contribution, icebreaker_q,
-                icebreaker_a, badge, created_at, updated_at,
-            ),
+        created = datetime.utcnow()
+        if data.createdAt:
+            try:
+                created = datetime.fromisoformat(data.createdAt.replace("Z", "+00:00"))
+            except Exception:
+                pass
+        db.add(
+            StudentDB(
+                id=data.id,
+                name=data.name,
+                field=data.field,
+                year=data.year,
+                language=data.language,
+                level_index=data.levelIndex,
+                xp=data.xp,
+                completed=data.completed,
+                character=json.dumps(data.character or []),
+                skills=json.dumps(data.skills or []),
+                contribution=data.contribution,
+                icebreaker_q=data.icebreakerQ,
+                icebreaker_a=data.icebreakerA,
+                badge=data.badge,
+                created_at=created,
+                updated_at=created,
+            )
         )
     db.commit()
+    return {"success": True, "message": "Progress saved"}
 
-    return jsonify({"success": True, "message": "Progress saved"})
 
-
-@app.route("/api/stats", methods=["GET"])
-def stats():
-    """Small aggregate endpoint, handy if you build a separate admin client."""
-    db = get_db()
-    total = db.execute("SELECT COUNT(*) AS n FROM students").fetchone()["n"]
-    completed = db.execute(
-        "SELECT COUNT(*) AS n FROM students WHERE completed = 1"
-    ).fetchone()["n"]
-    in_progress = db.execute(
-        "SELECT COUNT(*) AS n FROM students WHERE completed = 0 AND level_index > 0"
-    ).fetchone()["n"]
-    return jsonify({
+@app.get("/api/stats")
+def stats(db: Session = Depends(get_db)):
+    total = db.query(StudentDB).count()
+    completed = db.query(StudentDB).filter(StudentDB.completed == True).count()  # noqa: E712
+    in_progress = (
+        db.query(StudentDB)
+        .filter(StudentDB.completed == False, StudentDB.level_index > 0)  # noqa: E712
+        .count()
+    )
+    return {
         "total": total,
         "completed": completed,
         "inProgress": in_progress,
         "notStarted": total - completed - in_progress,
-    })
+    }
 
 
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=True)
+    import uvicorn
+
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
