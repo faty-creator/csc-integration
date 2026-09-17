@@ -24,7 +24,11 @@ from flask import Flask, g, jsonify, render_template, request
 
 app = Flask(__name__)
 
-DATABASE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "csc.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATABASE = os.path.join(BASE_DIR, "csc.db")
+app.config["DATABASE"] = DATABASE
+
+init_db()
 
 
 # ---------------------------------------------------------------------------
@@ -64,7 +68,7 @@ def init_db():
             xp            INTEGER DEFAULT 0,
             completed     INTEGER DEFAULT 0,
             character     TEXT,
-            skills        TEXT,     -- JSON array, e.g. ["dev","ai"]
+            skills        TEXT,
             contribution  TEXT,
             icebreaker_q  TEXT,
             icebreaker_a  TEXT,
@@ -76,7 +80,6 @@ def init_db():
     )
     conn.commit()
 
-    # --- lightweight migration: add any column missing from an older table ---
     expected_columns = {
         "name": "TEXT",
         "field": "TEXT",

@@ -598,20 +598,47 @@ function loadDB(){
     var raw = localStorage.getItem(DB_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
-  var seeded = seedStudents();
-  saveDB(seeded);
-  return seeded;
+  return [];
 }
 function saveDB(list){
   try{ localStorage.setItem(DB_KEY, JSON.stringify(list)); }catch(e){}
 }
-function upsertStudent(student){
-  var db = loadDB();
-  var idx = -1;
-  for(var i=0;i<db.length;i++){ if(db[i].id === student.id){ idx = i; break; } }
-  if(idx >= 0) db[idx] = student; else db.push(student);
-  saveDB(db);
-  try{ window.dispatchEvent(new CustomEvent("csc:db-update")); }catch(e){}
+async function refreshDBFromApi(){
+  try{
+    var response = await fetch("/api/students");
+    if(!response.ok) throw new Error("Failed to fetch students");
+    var students = await response.json();
+    saveDB(Array.isArray(students) ? students : []);
+    try{ window.dispatchEvent(new CustomEvent("csc:db-update")); }catch(e){}
+    return students;
+  }catch(e){
+    console.error("Unable to load students from API", e);
+    return loadDB();
+  }
+}
+async function upsertStudent(student){
+  try{
+    var response = await fetch("/api/students", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(student)
+    });
+    var payload = await response.json().catch(function(){ return {}; });
+    if(!response.ok) {
+      throw new Error(payload.error || "Student save failed");
+    }
+    await refreshDBFromApi();
+    return payload;
+  }catch(e){
+    console.error("Unable to save student through API", e);
+    var db = loadDB();
+    var idx = -1;
+    for(var i=0;i<db.length;i++){ if(db[i].id === student.id){ idx = i; break; } }
+    if(idx >= 0) db[idx] = student; else db.push(student);
+    saveDB(db);
+    try{ window.dispatchEvent(new CustomEvent("csc:db-update")); }catch(err){}
+    return { success: false, error: String(e) };
+  }
 }
 
 function defaultPlayer(){
@@ -985,9 +1012,9 @@ function destroyCharts(){
   charts = {};
 }
 
-function filteredStudents(){
-  var db = loadDB();
+function filteredStudents(db){
   var f = STATE.admin;
+  db = db || loadDB();
   return db.filter(function(s){
     if(f.search && s.name.toLowerCase().indexOf(f.search.toLowerCase()) === -1) return false;
     if(f.field !== "all" && s.field !== f.field) return false;
@@ -1009,9 +1036,9 @@ function statusPill(s){
   return '<span class="pill pill-new">'+d.statusNew+'</span>';
 }
 
-function renderAdmin(){
+function renderAdmin(all){
   var d = t().admin;
-  var all = loadDB();
+  all = all || loadDB();
   var total = all.length;
   var completed = all.filter(function(s){return s.completed;}).length;
   var inprogress = all.filter(function(s){return !s.completed && s.levelIndex>0;}).length;
@@ -1020,7 +1047,7 @@ function renderAdmin(){
     return dt.toDateString() === now.toDateString();
   }).length;
 
-  var list = filteredStudents();
+  var list = filteredStudents(all);
   var fieldOptions = Array.from(new Set(all.map(function(s){return s.field;})));
   var yearOptions = Array.from(new Set(all.map(function(s){return s.year;})));
 
@@ -1235,7 +1262,13 @@ function render(){
   }
   app.innerHTML = html;
   if(STATE.screen === "final") fireConfetti();
-  if(STATE.screen === "admin") mountAdminCharts();
+  if(STATE.screen === "admin") {
+    refreshDBFromApi().then(function(students){
+      if(STATE.screen !== "admin") return;
+      app.innerHTML = renderAdmin(students);
+      mountAdminCharts();
+    });
+  }
 }
 
 /* ===================================================================
@@ -1395,10 +1428,24 @@ document.addEventListener("change", function(e){
 
 /* live-update admin if data changes elsewhere */
 window.addEventListener("storage", function(e){
-  if(e.key === DB_KEY && STATE.screen === "admin") render();
+  if(e.key === DB_KEY && STATE.screen === "admin") {
+    refreshDBFromApi().then(function(students){
+      if(STATE.screen === "admin") {
+        app.innerHTML = renderAdmin(students);
+        mountAdminCharts();
+      }
+    });
+  }
 });
 window.addEventListener("csc:db-update", function(){
-  if(STATE.screen === "admin") render();
+  if(STATE.screen === "admin") {
+    refreshDBFromApi().then(function(students){
+      if(STATE.screen === "admin") {
+        app.innerHTML = renderAdmin(students);
+        mountAdminCharts();
+      }
+    });
+  }
 });
 
 /* hash routing for /admin convenience */
