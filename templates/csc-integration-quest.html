@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petto:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -349,6 +348,19 @@ table.admin-table{width:100%; border-collapse:collapse; font-size:13px; min-widt
 .pill-new{background:rgba(150,150,156,0.08); color:var(--text-dim); border:1px solid var(--border);}
 .admin-empty{padding:40px; text-align:center; color:var(--text-dim-2); font-size:13px;}
 .charts-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+
+/* ============ EDIT MODAL ============ */
+.modal-overlay{position:fixed; inset:0; z-index:80; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; padding:20px;}
+.modal-card{background:var(--bg-elev); border:1px solid var(--border); max-width:640px; width:100%; max-height:85vh; overflow-y:auto; padding:28px;}
+.modal-title{font-family:var(--font-display); font-size:18px; font-weight:700; margin-bottom:20px;}
+.modal-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px;}
+.modal-grid label{display:flex; flex-direction:column; gap:6px; font-size:11px; color:var(--text-dim); letter-spacing:0.05em;}
+.modal-grid input, .modal-grid select{margin-top:2px;}
+.modal-checkbox{grid-column:1 / -1; flex-direction:row !important; align-items:center; gap:8px !important;}
+.modal-actions{display:flex; justify-content:flex-end; gap:10px;}
+.row-actions{display:flex; gap:6px; white-space:nowrap;}
+.row-actions button{padding:6px 10px; font-size:12px;}
+@media (max-width:600px){ .modal-grid{grid-template-columns:1fr;} }
 .chart-card{background:var(--bg-elev); border:1px solid var(--border); padding:18px 18px 8px;}
 .chart-card h4{font-family:var(--font-display); font-size:12.5px; font-weight:600; margin:0 0 14px; letter-spacing:0.03em; color:var(--text);}
 .chart-card.wide{grid-column:span 2;}
@@ -454,7 +466,8 @@ en:{
     emailCol:"Email", phoneCol:"Phone", filiereCol:"Filière",
     statusCompleted:"Completed", statusProgress:"In progress", statusNew:"Not started",
     byLanguage:"Students by language", byField:"Students by field", byLevel:"Students by level", topSkills:"Most selected skills", topCharacter:"Most selected character", completionRate:"Completion rate",
-    backToQuest:"Back to quest", empty:"No students match your filters.", live:"Live", downloadPdf:"Download PDF"}
+    backToQuest:"Back to quest", empty:"No students match your filters.", live:"Live", downloadPdf:"Download PDF",
+    actionsCol:"Actions", editBtn:"Edit", deleteBtn:"Delete", editTitle:"Edit student", cancelBtn:"Cancel", saveBtn:"Save changes", completedLabel:"Completed", confirmDelete:"Delete this student? This cannot be undone."}
 },
 fr:{
   dir:"ltr",
@@ -499,7 +512,8 @@ fr:{
     emailCol:"Email", phoneCol:"Téléphone", filiereCol:"Filière (contact)",
     statusCompleted:"Terminé", statusProgress:"En cours", statusNew:"Pas commencé",
     byLanguage:"Étudiants par langue", byField:"Étudiants par filière", byLevel:"Étudiants par niveau", topSkills:"Compétences les plus choisies", topCharacter:"Personnage le plus choisi", completionRate:"Taux de complétion",
-    backToQuest:"Retour à la quête", empty:"Aucun étudiant ne correspond à tes filtres.", live:"En direct", downloadPdf:"Télécharger le PDF"}
+    backToQuest:"Retour à la quête", empty:"Aucun étudiant ne correspond à tes filtres.", live:"En direct", downloadPdf:"Télécharger le PDF",
+    actionsCol:"Actions", editBtn:"Modifier", deleteBtn:"Supprimer", editTitle:"Modifier l'étudiant", cancelBtn:"Annuler", saveBtn:"Enregistrer", completedLabel:"Terminé", confirmDelete:"Supprimer cet étudiant ? Action irréversible."}
 },
 ar:{
   dir:"rtl",
@@ -544,7 +558,8 @@ ar:{
     emailCol:"البريد الإلكتروني", phoneCol:"الهاتف", filiereCol:"الشعبة",
     statusCompleted:"مكتمل", statusProgress:"قيد التقدم", statusNew:"لم يبدأ",
     byLanguage:"الطلاب حسب اللغة", byField:"الطلاب حسب التخصص", byLevel:"الطلاب حسب المستوى", topSkills:"أكثر المهارات اختيارًا", topCharacter:"أكثر شخصية مختارة", completionRate:"معدل الإنجاز",
-    backToQuest:"العودة إلى الرحلة", empty:"لا يوجد طلاب مطابقون لعوامل التصفية.", live:"مباشر", downloadPdf:"تحميل PDF"}
+    backToQuest:"العودة إلى الرحلة", empty:"لا يوجد طلاب مطابقون لعوامل التصفية.", live:"مباشر", downloadPdf:"تحميل PDF",
+    actionsCol:"الإجراءات", editBtn:"تعديل", deleteBtn:"حذف", editTitle:"تعديل الطالب", cancelBtn:"إلغاء", saveBtn:"حفظ التغييرات", completedLabel:"مكتمل", confirmDelete:"حذف هذا الطالب؟ لا يمكن التراجع عن هذا الإجراء."}
 }
 };
 
@@ -618,7 +633,7 @@ var STATE = {
   screen:"welcome",
   lang: (function(){ try{ return localStorage.getItem("csc_quest_lang") || "en"; }catch(e){ return "en"; } })(),
   player: loadPlayer(),
-  admin:{ search:"", field:"all", year:"all", lang:"all", level:"all", status:"all" },
+  admin:{ search:"", field:"all", year:"all", lang:"all", level:"all", status:"all", editingId:null },
   students: [],
   studentsLoaded: false
 };
@@ -978,12 +993,6 @@ function renderProfile(){
 /* ===================================================================
    ADMIN
 =================================================================== */
-var charts = {};
-function destroyCharts(){
-  Object.keys(charts).forEach(function(k){ if(charts[k]) charts[k].destroy(); });
-  charts = {};
-}
-
 function filteredStudents(){
   var db = STATE.students;
   var f = STATE.admin;
@@ -1039,6 +1048,10 @@ function renderAdmin(){
         '<td>'+esc(s.phone||'—')+'</td>' +
         '<td>'+esc(s.filiere||'—')+'</td>' +
         '<td>'+dstr+'</td>' +
+        '<td><div class="row-actions">' +
+          '<button class="btn btn-ghost cut-sm" data-action="editstudent" data-id="'+esc(s.id)+'">'+d.editBtn+'</button>' +
+          '<button class="btn btn-ghost cut-sm" data-action="deletestudent" data-id="'+esc(s.id)+'" data-name="'+esc(s.name)+'">'+d.deleteBtn+'</button>' +
+        '</div></td>' +
       '</tr>'
     );
   }).join('');
@@ -1095,90 +1108,93 @@ function renderAdmin(){
         '<div class="admin-table-wrap">' +
           (list.length ? (
           '<table class="admin-table"><thead><tr>' +
-            '<th>'+d.name+'</th><th>'+d.fieldCol+'</th><th>'+d.yearCol+'</th><th>'+d.langCol+'</th><th>'+d.levelCol+'</th><th>'+d.xpCol+'</th><th>'+d.statusCol+'</th><th>'+d.emailCol+'</th><th>'+d.phoneCol+'</th><th>'+d.filiereCol+'</th><th>'+d.joinedCol+'</th>' +
+            '<th>'+d.name+'</th><th>'+d.fieldCol+'</th><th>'+d.yearCol+'</th><th>'+d.langCol+'</th><th>'+d.levelCol+'</th><th>'+d.xpCol+'</th><th>'+d.statusCol+'</th><th>'+d.emailCol+'</th><th>'+d.phoneCol+'</th><th>'+d.filiereCol+'</th><th>'+d.joinedCol+'</th><th>'+d.actionsCol+'</th>' +
           '</tr></thead><tbody>'+rows+'</tbody></table>'
           ) : '<div class="admin-empty">'+d.empty+'</div>') +
         '</div>' +
-        '<div class="charts-grid">' +
-          '<div class="chart-card"><h4>'+d.byLanguage+'</h4><div class="chart-holder"><canvas id="chart-lang"></canvas></div></div>' +
-          '<div class="chart-card"><h4>'+d.byField+'</h4><div class="chart-holder"><canvas id="chart-field"></canvas></div></div>' +
-          '<div class="chart-card"><h4>'+d.completionRate+'</h4><div class="chart-holder"><canvas id="chart-completion"></canvas></div></div>' +
-          '<div class="chart-card wide"><h4>'+d.byLevel+'</h4><div class="chart-holder"><canvas id="chart-level"></canvas></div></div>' +
-          '<div class="chart-card"><h4>'+d.topCharacter+'</h4><div class="chart-holder"><canvas id="chart-char"></canvas></div></div>' +
-          '<div class="chart-card wide" style="grid-column:span 3;"><h4>'+d.topSkills+'</h4><div class="chart-holder"><canvas id="chart-skills"></canvas></div></div>' +
+      '</div>' +
+      (STATE.admin.editingId ? renderEditModal(all.find(function(s){return s.id === STATE.admin.editingId;})) : '') +
+    '</div>'
+  );
+}
+
+function renderEditModal(s){
+  if(!s) return '';
+  var d = t().admin;
+  var langs = [["en","EN"],["fr","FR"],["ar","AR"]];
+  return (
+    '<div class="modal-overlay" data-action="modalbg">' +
+      '<div class="modal-card cut-both" data-action="modalcard">' +
+        '<div class="modal-title">'+d.editTitle+'</div>' +
+        '<div class="modal-grid">' +
+          '<label>'+d.name+'<input id="edit-name" class="text-input" type="text" value="'+esc(s.name)+'"></label>' +
+          '<label>'+d.fieldCol+'<input id="edit-field" class="text-input" type="text" value="'+esc(s.field)+'"></label>' +
+          '<label>'+d.yearCol+'<input id="edit-year" class="text-input" type="text" value="'+esc(s.year)+'"></label>' +
+          '<label>'+d.langCol+'<select id="edit-language" class="admin-select">' +
+            langs.map(function(l){ return '<option value="'+l[0]+'" '+(s.language===l[0]?'selected':'')+'>'+l[1]+'</option>'; }).join('') +
+          '</select></label>' +
+          '<label>'+d.levelCol+'<select id="edit-level" class="admin-select">' +
+            [0,1,2,3,4].map(function(i){ return '<option value="'+i+'" '+(s.levelIndex===i?'selected':'')+'>Lvl '+i+'</option>'; }).join('') +
+          '</select></label>' +
+          '<label>'+d.xpCol+'<input id="edit-xp" class="text-input" type="number" value="'+s.xp+'"></label>' +
+          '<label>Character<select id="edit-character" class="admin-select">' +
+            '<option value="">—</option>' +
+            SEED_CHARS.map(function(c){ return '<option value="'+c+'" '+(s.character===c?'selected':'')+'>'+charLabel(c)+'</option>'; }).join('') +
+          '</select></label>' +
+          '<label>Skills<input id="edit-skills" class="text-input" type="text" value="'+esc((s.skills||[]).join(", "))+'" placeholder="dev, ai, data"></label>' +
+          '<label>'+d.emailCol+'<input id="edit-email" class="text-input" type="email" value="'+esc(s.email||"")+'"></label>' +
+          '<label>'+d.phoneCol+'<input id="edit-phone" class="text-input" type="tel" value="'+esc(s.phone||"")+'"></label>' +
+          '<label>'+d.filiereCol+'<input id="edit-filiere" class="text-input" type="text" value="'+esc(s.filiere||"")+'"></label>' +
+          '<label class="modal-checkbox"><input id="edit-completed" type="checkbox" '+(s.completed?'checked':'')+'> '+d.completedLabel+'</label>' +
+        '</div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn btn-ghost btn-sm cut-sm" data-action="canceledit">'+d.cancelBtn+'</button>' +
+          '<button class="btn btn-primary btn-sm cut-sm" data-action="saveedit">'+d.saveBtn+'</button>' +
         '</div>' +
       '</div>' +
     '</div>'
   );
 }
 
-function mountAdminCharts(){
-  if(typeof Chart === "undefined") return;
-  destroyCharts();
-  var all = STATE.students;
-  var d = t().admin;
-  if(!all.length){ return; }
-  Chart.defaults.color = "#96969c";
-  Chart.defaults.font.family = "'Inter', sans-serif";
-  Chart.defaults.font.size = 11;
-  var yellow = "#f4c10f", orange = "#e8752d", cream = "#f3ecc7", grid = "rgba(255,255,255,0.06)";
+function deleteStudent(id){
+  fetch('/api/students/' + encodeURIComponent(id), { method: 'DELETE' })
+    .then(function(res){ return res.json(); })
+    .then(function(){ fetchStudents(); })
+    .catch(function(err){
+      console.error("Failed to delete student:", err);
+      showToast("⚠ Could not delete");
+    });
+}
 
-  // language
-  var langCounts = {fr:0,en:0,ar:0};
-  all.forEach(function(s){ if(langCounts[s.language] !== undefined) langCounts[s.language]++; });
-  charts.lang = new Chart(document.getElementById("chart-lang"), {
-    type:"doughnut",
-    data:{ labels:["FR","EN","AR"], datasets:[{ data:[langCounts.fr,langCounts.en,langCounts.ar], backgroundColor:[orange,yellow,cream], borderColor:"#111217", borderWidth:2 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{position:"bottom", labels:{boxWidth:10,padding:12}}} }
-  });
+function saveEditedStudent(){
+  var id = STATE.admin.editingId;
+  var s = STATE.students.find(function(x){ return x.id === id; });
+  if(!s) return;
 
-  // field
-  var fieldCounts = {};
-  all.forEach(function(s){ fieldCounts[s.field] = (fieldCounts[s.field]||0)+1; });
-  var fieldLabels = Object.keys(fieldCounts);
-  charts.field = new Chart(document.getElementById("chart-field"), {
-    type:"bar",
-    data:{ labels:fieldLabels, datasets:[{ data:fieldLabels.map(function(k){return fieldCounts[k];}), backgroundColor:yellow, borderRadius:0 }] },
-    options:{ responsive:true, maintainAspectRatio:false, indexAxis:"y", plugins:{legend:{display:false}}, scales:{x:{grid:{color:grid}, ticks:{precision:0}}, y:{grid:{display:false}}} }
-  });
+  var skillsRaw = document.getElementById('edit-skills').value || '';
+  var completedChecked = document.getElementById('edit-completed').checked;
 
-  // completion rate
-  var completed = all.filter(function(s){return s.completed;}).length;
-  var notCompleted = all.length - completed;
-  charts.completion = new Chart(document.getElementById("chart-completion"), {
-    type:"doughnut",
-    data:{ labels:[d.statusCompleted, "Other"], datasets:[{ data:[completed, notCompleted], backgroundColor:[yellow,"#26272d"], borderColor:"#111217", borderWidth:2 }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:"70%", plugins:{legend:{position:"bottom", labels:{boxWidth:10,padding:12}}} }
-  });
+  var payload = {
+    id: id,
+    name: document.getElementById('edit-name').value.trim() || 'New Explorer',
+    field: document.getElementById('edit-field').value.trim() || '—',
+    year: document.getElementById('edit-year').value.trim() || '—',
+    language: document.getElementById('edit-language').value,
+    levelIndex: parseInt(document.getElementById('edit-level').value, 10) || 0,
+    xp: parseInt(document.getElementById('edit-xp').value, 10) || 0,
+    completed: completedChecked,
+    character: document.getElementById('edit-character').value,
+    skills: skillsRaw.split(',').map(function(x){ return x.trim(); }).filter(Boolean),
+    badge: s.badge || (completedChecked ? "CSC EXPLORER" : ""),
+    email: document.getElementById('edit-email').value.trim(),
+    phone: document.getElementById('edit-phone').value.trim(),
+    filiere: document.getElementById('edit-filiere').value.trim(),
+    createdAt: s.createdAt
+  };
 
-  // by level
-  var levelCounts = [0,0,0,0,0];
-  all.forEach(function(s){ levelCounts[Math.min(s.levelIndex,4)]++; });
-  charts.level = new Chart(document.getElementById("chart-level"), {
-    type:"bar",
-    data:{ labels:["Lvl 0","Lvl 1","Lvl 2","Lvl 3","Lvl 4"], datasets:[{ data:levelCounts, backgroundColor:orange, borderRadius:0 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:grid}, ticks:{precision:0}}, x:{grid:{display:false}}} }
-  });
-
-  // top character
-  var charCounts = {};
-  SEED_CHARS.forEach(function(c){ charCounts[c]=0; });
-  all.forEach(function(s){ if(s.character) charCounts[s.character] = (charCounts[s.character]||0)+1; });
-  charts.char = new Chart(document.getElementById("chart-char"), {
-    type:"polarArea",
-    data:{ labels:SEED_CHARS.map(charLabel), datasets:[{ data:SEED_CHARS.map(function(c){return charCounts[c];}), backgroundColor:[yellow,orange,cream,"#c98f3b","#8a6a1f","#d9a441"] }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{r:{grid:{color:grid}, ticks:{display:false}}} }
-  });
-
-  // top skills
-  var skillCounts = {};
-  SEED_SKILLS.forEach(function(s){ skillCounts[s]=0; });
-  all.forEach(function(s){ (s.skills||[]).forEach(function(sk){ skillCounts[sk] = (skillCounts[sk]||0)+1; }); });
-  charts.skills = new Chart(document.getElementById("chart-skills"), {
-    type:"bar",
-    data:{ labels:SEED_SKILLS.map(skillLabel), datasets:[{ data:SEED_SKILLS.map(function(k){return skillCounts[k];}), backgroundColor:yellow, borderRadius:0 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{grid:{color:grid}, ticks:{precision:0}}, x:{grid:{display:false}, ticks:{autoSkip:false, maxRotation:30, minRotation:0}}} }
-  });
+  STATE.admin.editingId = null;
+  render();
+  upsertStudent(payload);
 }
 
 /* ===================================================================
@@ -1286,7 +1302,6 @@ function render(){
   }
   app.innerHTML = html;
   if(STATE.screen === "final") fireConfetti();
-  if(STATE.screen === "admin") mountAdminCharts();
 }
 
 /* ===================================================================
@@ -1406,6 +1421,27 @@ document.addEventListener("click", function(e){
       break;
     case "downloadpdf":
       downloadDashboardPDF();
+      break;
+    case "editstudent":
+      STATE.admin.editingId = el.getAttribute("data-id");
+      render();
+      break;
+    case "deletestudent":
+      var delId = el.getAttribute("data-id");
+      var delName = el.getAttribute("data-name") || "";
+      if(window.confirm(t().admin.confirmDelete + (delName ? " (" + delName + ")" : ""))){
+        deleteStudent(delId);
+      }
+      break;
+    case "canceledit":
+    case "modalbg":
+      STATE.admin.editingId = null;
+      render();
+      break;
+    case "modalcard":
+      break; // swallow click so it doesn't bubble to modalbg and close the modal
+    case "saveedit":
+      saveEditedStudent();
       break;
     case "adminsearch": break; // handled on input
     default: break;
