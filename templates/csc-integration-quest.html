@@ -1,13 +1,3 @@
-<!-- 
- 
-
-
-
-
--->
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petto:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* ============ TOKENS ============ */
 :root{
@@ -431,8 +423,9 @@ en:{
   ]},
   hud:{level:"LEVEL"},
   level0:{eyebrow:"LEVEL 0", title:"WHO ARE YOU?", q1:"What should we call you?", ph1:"Your full name", q2:"What do you study?",
-    fields:["AI","Computer Science","Data","Software Engineering","Other"],
-    q3:"What year are you in?", years:["1st year","2nd year","3rd year","Master","Other"], cta:"UNLOCK LEVEL 1 →"},
+    fields:["SIT","IRISI","IAII","DEV","MASTER","Other"],
+    otherPh:"Please specify your field",
+    q3:"What year are you in?", yearPh:"e.g. 2nd year", cta:"UNLOCK LEVEL 1 →"},
   level1:{eyebrow:"LEVEL 1", title:"CHOOSE YOUR CHARACTER", sub:"Pick one or more — you're rarely just one thing.",
     characters:[
       {icon:"🧠", name:"THE STRATEGIST", desc:"I love solving problems."},
@@ -445,14 +438,11 @@ en:{
   level2:{eyebrow:"LEVEL 2", title:"CHOOSE YOUR POWERS", sub:"Select every skill you bring to the table.",
     skills:[["dev","💻","Development"],["ai","🤖","AI"],["data","📊","Data"],["design","🎨","Design"],["speak","🎤","Public Speaking"],["social","📱","Social Media"],["video","🎥","Video"],["solve","🧠","Problem Solving"],["team","🤝","Teamwork"],["marketing","📢","Marketing"]],
     contributeQ:"What would you like to contribute to CSC?", contributePh:"A workshop idea, a project, energy at events — anything.", cta:"CLAIM YOUR XP →"},
-  level3:{eyebrow:"LEVEL 3", title:"LET'S BREAK THE ICE", sub:"No wrong answers. Just be honest.", tag:"YOUR QUESTION",
-    questions:[
-      "What is something you could talk about for 30 minutes without getting bored?",
-      "If you could travel anywhere tomorrow, where would you go?",
-      "What is one idea you would love to build?",
-      "What is something your friends always say about you?",
-      "What motivates you?"
-    ], ph:"Type your answer here...", cta:"FINISH THE QUEST →"},
+  level3:{eyebrow:"LEVEL 3", title:"ALMOST DONE!", sub:"Leave your contact info so CSC can reach you.",
+    emailLabel:"Email address", emailPh:"you@example.com",
+    phoneLabel:"Phone number", phonePh:"+212 6 12 34 56 78",
+    filiereLabel:"Filière", filierePh:"e.g. GI, GE, GM…",
+    cta:"FINISH THE QUEST →"},
   final:{kicker:"QUEST COMPLETE", title:"WELCOME TO CSC, {name}!", sub:"YOU'RE OFFICIALLY PART OF THE JOURNEY.", cta:"VIEW MY PROFILE →"},
   profile:{title:"STUDENT PROFILE", field:"Field", year:"Year", character:"Character", skills:"Skills", xp:"XP", badge:"Badge", language:"Language", completion:"Complete", download:"DOWNLOAD PROFILE", restart:"START A NEW QUEST", role:"CSC EXPLORER", badgeName:"CSC EXPLORER"},
   hint:{level0:"Takes about a minute.", level1:"", level2:"", level3:"Pick whatever comes to mind first."},
@@ -461,9 +451,10 @@ en:{
     total:"Total students", completed:"Completed", inprogress:"In progress", today:"Active today",
     search:"Search a student…", allFields:"All fields", allYears:"All years", allLang:"All languages", allLevels:"All levels", allStatus:"All statuses",
     name:"Name", fieldCol:"Field", yearCol:"Year", langCol:"Lang", levelCol:"Level", xpCol:"XP", statusCol:"Status", joinedCol:"Joined",
+    emailCol:"Email", phoneCol:"Phone", filiereCol:"Filière",
     statusCompleted:"Completed", statusProgress:"In progress", statusNew:"Not started",
     byLanguage:"Students by language", byField:"Students by field", byLevel:"Students by level", topSkills:"Most selected skills", topCharacter:"Most selected character", completionRate:"Completion rate",
-    backToQuest:"Back to quest", empty:"No students match your filters.", live:"Live"}
+    backToQuest:"Back to quest", empty:"No students match your filters.", live:"Live", downloadPdf:"Download PDF"}
 },
 fr:{
   dir:"ltr",
@@ -477,8 +468,9 @@ fr:{
   ]},
   hud:{level:"NIVEAU"},
   level0:{eyebrow:"NIVEAU 0", title:"QUI ES-TU ?", q1:"Comment doit-on t'appeler ?", ph1:"Ton nom complet", q2:"Qu'est-ce que tu étudies ?",
-    fields:["IA","Informatique","Data","Génie Logiciel","Autre"],
-    q3:"En quelle année es-tu ?", years:["1ère année","2e année","3e année","Master","Autre"], cta:"DÉBLOQUER LE NIVEAU 1 →"},
+    fields:["SIT","IRISI","IAII","DEV","MASTER","Autre"],
+    otherPh:"Précise ta filière",
+    q3:"En quelle année es-tu ?", yearPh:"ex : 2ème année", cta:"DÉBLOQUER LE NIVEAU 1 →"},
   level1:{eyebrow:"NIVEAU 1", title:"CHOISIS TON PERSONNAGE", sub:"Un ou plusieurs — on n'est jamais qu'une seule chose.",
     characters:[
       {icon:"🧠", name:"LE STRATÈGE", desc:"J'adore résoudre des problèmes."},
@@ -491,14 +483,11 @@ fr:{
   level2:{eyebrow:"NIVEAU 2", title:"CHOISIS TES POUVOIRS", sub:"Sélectionne toutes les compétences que tu apportes.",
     skills:[["dev","💻","Développement"],["ai","🤖","IA"],["data","📊","Data"],["design","🎨","Design"],["speak","🎤","Prise de parole"],["social","📱","Réseaux sociaux"],["video","🎥","Vidéo"],["solve","🧠","Résolution de problèmes"],["team","🤝","Travail d'équipe"],["marketing","📢","Marketing"]],
     contributeQ:"Qu'aimerais-tu apporter au CSC ?", contributePh:"Une idée d'atelier, un projet, de l'énergie aux événements…", cta:"RÉCUPÉRER MON XP →"},
-  level3:{eyebrow:"NIVEAU 3", title:"BRISONS LA GLACE", sub:"Pas de mauvaise réponse. Sois juste honnête.", tag:"TA QUESTION",
-    questions:[
-      "De quoi pourrais-tu parler pendant 30 minutes sans t'ennuyer ?",
-      "Si tu pouvais voyager n'importe où demain, où irais-tu ?",
-      "Quelle est une idée que tu adorerais construire ?",
-      "Que disent toujours tes amis à propos de toi ?",
-      "Qu'est-ce qui te motive ?"
-    ], ph:"Écris ta réponse ici...", cta:"TERMINER LA QUÊTE →"},
+  level3:{eyebrow:"NIVEAU 3", title:"PRESQUE FINI !", sub:"Laisse tes coordonnées pour que le CSC puisse te contacter.",
+    emailLabel:"Adresse email", emailPh:"toi@exemple.com",
+    phoneLabel:"Numéro de téléphone", phonePh:"+212 6 12 34 56 78",
+    filiereLabel:"Filière", filierePh:"ex : GI, GE, GM…",
+    cta:"TERMINER LA QUÊTE →"},
   final:{kicker:"QUÊTE TERMINÉE", title:"BIENVENUE AU CSC, {name} !", sub:"TU FAIS OFFICIELLEMENT PARTIE DE L'AVENTURE.", cta:"VOIR MON PROFIL →"},
   profile:{title:"PROFIL ÉTUDIANT", field:"Filière", year:"Année", character:"Personnage", skills:"Compétences", xp:"XP", badge:"Badge", language:"Langue", completion:"Complété", download:"TÉLÉCHARGER LE PROFIL", restart:"COMMENCER UNE NOUVELLE QUÊTE", role:"EXPLORATEUR CSC", badgeName:"EXPLORATEUR CSC"},
   hint:{level0:"Ça prend une minute.", level1:"", level2:"", level3:"Réponds avec ce qui te vient en premier."},
@@ -507,9 +496,10 @@ fr:{
     total:"Étudiants au total", completed:"Terminé", inprogress:"En cours", today:"Actifs aujourd'hui",
     search:"Rechercher un étudiant…", allFields:"Toutes les filières", allYears:"Toutes les années", allLang:"Toutes les langues", allLevels:"Tous les niveaux", allStatus:"Tous les statuts",
     name:"Nom", fieldCol:"Filière", yearCol:"Année", langCol:"Langue", levelCol:"Niveau", xpCol:"XP", statusCol:"Statut", joinedCol:"Inscrit",
+    emailCol:"Email", phoneCol:"Téléphone", filiereCol:"Filière (contact)",
     statusCompleted:"Terminé", statusProgress:"En cours", statusNew:"Pas commencé",
     byLanguage:"Étudiants par langue", byField:"Étudiants par filière", byLevel:"Étudiants par niveau", topSkills:"Compétences les plus choisies", topCharacter:"Personnage le plus choisi", completionRate:"Taux de complétion",
-    backToQuest:"Retour à la quête", empty:"Aucun étudiant ne correspond à tes filtres.", live:"En direct"}
+    backToQuest:"Retour à la quête", empty:"Aucun étudiant ne correspond à tes filtres.", live:"En direct", downloadPdf:"Télécharger le PDF"}
 },
 ar:{
   dir:"rtl",
@@ -523,8 +513,9 @@ ar:{
   ]},
   hud:{level:"المستوى"},
   level0:{eyebrow:"المستوى 0", title:"من أنت؟", q1:"بماذا نناديك؟", ph1:"اسمك الكامل", q2:"ماذا تدرس؟",
-    fields:["الذكاء الاصطناعي","علوم الحاسوب","البيانات","هندسة البرمجيات","أخرى"],
-    q3:"في أي سنة أنت؟", years:["السنة الأولى","السنة الثانية","السنة الثالثة","ماستر","أخرى"], cta:"افتح المستوى 1 ←"},
+    fields:["SIT","IRISI","IAII","DEV","ماستر","أخرى"],
+    otherPh:"يرجى تحديد تخصصك",
+    q3:"في أي سنة أنت؟", yearPh:"مثال: السنة الثانية", cta:"افتح المستوى 1 ←"},
   level1:{eyebrow:"المستوى 1", title:"اختر شخصيتك", sub:"واحدة أو أكثر — نادرًا ما نكون شيئًا واحدًا فقط.",
     characters:[
       {icon:"🧠", name:"الاستراتيجي", desc:"أحب حل المشكلات."},
@@ -537,14 +528,11 @@ ar:{
   level2:{eyebrow:"المستوى 2", title:"اختر قدراتك", sub:"اختر كل مهارة تجلبها معك.",
     skills:[["dev","💻","تطوير"],["ai","🤖","ذكاء اصطناعي"],["data","📊","بيانات"],["design","🎨","تصميم"],["speak","🎤","التحدث أمام الجمهور"],["social","📱","وسائل التواصل"],["video","🎥","فيديو"],["solve","🧠","حل المشكلات"],["team","🤝","العمل الجماعي"],["marketing","📢","تسويق"]],
     contributeQ:"ماذا تحب أن تقدم لـ CSC؟", contributePh:"فكرة ورشة، مشروع، طاقة في الفعاليات…", cta:"احصل على نقاطك ←"},
-  level3:{eyebrow:"المستوى 3", title:"لنكسر الجليد", sub:"لا توجد إجابة خاطئة. فقط كن صادقًا.", tag:"سؤالك",
-    questions:[
-      "ما الشيء الذي يمكنك التحدث عنه لمدة 30 دقيقة دون أن تشعر بالملل؟",
-      "لو استطعت السفر إلى أي مكان غدًا، إلى أين ستذهب؟",
-      "ما هي فكرة تحب أن تبنيها؟",
-      "ما الشيء الذي يقوله أصدقاؤك دائمًا عنك؟",
-      "ما الذي يحفزك؟"
-    ], ph:"اكتب إجابتك هنا...", cta:"أنهِ الرحلة ←"},
+  level3:{eyebrow:"المستوى 3", title:"أوشكت على الانتهاء!", sub:"اترك بياناتك ليتمكن CSC من التواصل معك.",
+    emailLabel:"البريد الإلكتروني", emailPh:"anta@example.com",
+    phoneLabel:"رقم الهاتف", phonePh:"+212 6 12 34 56 78",
+    filiereLabel:"الشعبة", filierePh:"مثال: GI, GE, GM…",
+    cta:"أنهِ الرحلة ←"},
   final:{kicker:"اكتملت الرحلة", title:"مرحبًا بك في CSC يا {name}!", sub:"أصبحت رسميًا جزءًا من الرحلة.", cta:"عرض ملفي الشخصي ←"},
   profile:{title:"الملف الشخصي للطالب", field:"التخصص", year:"السنة", character:"الشخصية", skills:"المهارات", xp:"النقاط", badge:"الشارة", language:"اللغة", completion:"الإنجاز", download:"تحميل الملف الشخصي", restart:"ابدأ رحلة جديدة", role:"مستكشف CSC", badgeName:"مستكشف CSC"},
   hint:{level0:"يستغرق حوالي دقيقة.", level1:"", level2:"", level3:"اختر أول ما يخطر ببالك."},
@@ -553,9 +541,10 @@ ar:{
     total:"إجمالي الطلاب", completed:"مكتمل", inprogress:"قيد التقدم", today:"نشط اليوم",
     search:"ابحث عن طالب…", allFields:"كل التخصصات", allYears:"كل السنوات", allLang:"كل اللغات", allLevels:"كل المستويات", allStatus:"كل الحالات",
     name:"الاسم", fieldCol:"التخصص", yearCol:"السنة", langCol:"اللغة", levelCol:"المستوى", xpCol:"النقاط", statusCol:"الحالة", joinedCol:"تاريخ الانضمام",
+    emailCol:"البريد الإلكتروني", phoneCol:"الهاتف", filiereCol:"الشعبة",
     statusCompleted:"مكتمل", statusProgress:"قيد التقدم", statusNew:"لم يبدأ",
     byLanguage:"الطلاب حسب اللغة", byField:"الطلاب حسب التخصص", byLevel:"الطلاب حسب المستوى", topSkills:"أكثر المهارات اختيارًا", topCharacter:"أكثر شخصية مختارة", completionRate:"معدل الإنجاز",
-    backToQuest:"العودة إلى الرحلة", empty:"لا يوجد طلاب مطابقون لعوامل التصفية.", live:"مباشر"}
+    backToQuest:"العودة إلى الرحلة", empty:"لا يوجد طلاب مطابقون لعوامل التصفية.", live:"مباشر", downloadPdf:"تحميل PDF"}
 }
 };
 
@@ -607,9 +596,9 @@ function upsertStudent(student){
 function defaultPlayer(){
   return {
     id: "p-" + Math.random().toString(36).slice(2,10),
-    name:"", field:"", year:"",
+    name:"", field:"", fieldOther:"", year:"",
     characters:[], skills:[], contribution:"",
-    icebreakerQ:"", icebreakerA:"",
+    email:"", phone:"", filiere:"",
     xp:0, levelIndex:0, completed:false,
     badge:"", createdAt: new Date().toISOString(), language:"en"
   };
@@ -759,10 +748,19 @@ function renderMap(){
 /* ===================================================================
    LEVEL 0 — WHO ARE YOU
 =================================================================== */
+function isOtherFieldSelected(p){
+  var fields = t().level0.fields;
+  return p.field && p.field === fields[fields.length-1];
+}
+function canSubmitLevel0(){
+  var p = STATE.player;
+  var otherOk = !isOtherFieldSelected(p) || (p.fieldOther && p.fieldOther.trim().length>0);
+  return p.name.trim().length>0 && !!p.field && otherOk && !!(p.year && p.year.trim().length>0);
+}
 function renderLevel0(){
   var d = t().level0;
   var p = STATE.player;
-  var canSubmit = p.name.trim().length>0 && p.field && p.year;
+  var canSubmit = canSubmitLevel0();
   return (
     '<div class="screen fade-in">' + hud() +
     '<div class="level-screen"><div class="level-inner">' +
@@ -778,12 +776,13 @@ function renderLevel0(){
         '<div class="choice-grid">' + d.fields.map(function(f){
           return '<div class="choice-card '+(p.field===f?'selected':'')+'" data-action="setfield" data-val="'+esc(f)+'">'+f+'</div>';
         }).join('') + '</div>' +
+        (isOtherFieldSelected(p) ?
+          '<input class="text-input" style="margin-top:12px;" type="text" placeholder="'+esc(d.otherPh)+'" value="'+esc(p.fieldOther||"")+'" data-action="setfieldother">'
+          : '') +
       '</div>' +
       '<div class="field-block">' +
         '<div class="field-q">'+d.q3+'</div>' +
-        '<div class="choice-grid">' + d.years.map(function(y){
-          return '<div class="choice-card '+(p.year===y?'selected':'')+'" data-action="setyear" data-val="'+esc(y)+'">'+y+'</div>';
-        }).join('') + '</div>' +
+        '<input class="text-input" type="text" placeholder="'+esc(d.yearPh)+'" value="'+esc(p.year)+'" data-action="setyear">' +
       '</div>' +
       '<div class="level-actions">' +
         '<span class="level-hint">'+t().hint.level0+'</span>' +
@@ -862,30 +861,38 @@ function renderLevel2(){
 /* ===================================================================
    LEVEL 3 — ICEBREAKER
 =================================================================== */
+function isValidEmail(str){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((str||"").trim());
+}
+function canSubmitLevel3(){
+  var p = STATE.player;
+  return isValidEmail(p.email) && p.phone.trim().length>3 && p.filiere.trim().length>0;
+}
 function renderLevel3(){
   var d = t().level3;
   var p = STATE.player;
-  if(!p.icebreakerQIdx && p.icebreakerQIdx !== 0){
-    p.icebreakerQIdx = Math.floor(Math.random()*d.questions.length);
-  }
-  var q = d.questions[p.icebreakerQIdx];
-  var canSubmit = p.icebreakerA.trim().length > 2;
+  var canSubmit = canSubmitLevel3();
   return (
     '<div class="screen fade-in">' + hud() +
     '<div class="level-screen"><div class="level-inner">' +
       '<button class="back-link" data-action="gomap">← '+t().back+'</button>' +
       '<div class="level-eyebrow" style="margin-top:22px;">'+d.eyebrow+'</div>' +
       '<h2 class="level-title">'+d.title+'</h2>' +
-      '<p style="color:var(--text-dim);font-size:14px;margin:-26px 0 26px;">'+d.sub+'</p>' +
-      '<div class="icebreak-card cut-both">' +
-        '<div class="icebreak-tag">'+d.tag+'</div>' +
-        '<div class="icebreak-q spin" id="ice-q">'+q+'</div>' +
+      '<p style="color:var(--text-dim);font-size:14px;margin:-26px 0 30px;">'+d.sub+'</p>' +
+      '<div class="field-block">' +
+        '<div class="field-q">'+d.emailLabel+'</div>' +
+        '<input class="text-input" type="email" placeholder="'+esc(d.emailPh)+'" value="'+esc(p.email)+'" data-action="setemail">' +
       '</div>' +
       '<div class="field-block">' +
-        '<textarea class="text-input" placeholder="'+d.ph+'" data-action="setice">'+esc(p.icebreakerA)+'</textarea>' +
+        '<div class="field-q">'+d.phoneLabel+'</div>' +
+        '<input class="text-input" type="tel" placeholder="'+esc(d.phonePh)+'" value="'+esc(p.phone)+'" data-action="setphone">' +
+      '</div>' +
+      '<div class="field-block">' +
+        '<div class="field-q">'+d.filiereLabel+'</div>' +
+        '<input class="text-input" type="text" placeholder="'+esc(d.filierePh)+'" value="'+esc(p.filiere)+'" data-action="setfiliere">' +
       '</div>' +
       '<div class="level-actions">' +
-        '<span class="level-hint">'+t().hint.level3+'</span>' +
+        '<span class="level-hint"></span>' +
         '<button class="btn btn-primary cut" data-action="submit3" '+(canSubmit?'':'disabled')+'>'+d.cta+'</button>' +
       '</div>' +
     '</div></div></div>'
@@ -1028,6 +1035,9 @@ function renderAdmin(){
         '<td>Lvl '+s.levelIndex+'</td>' +
         '<td>'+s.xp+' XP</td>' +
         '<td>'+statusPill(s)+'</td>' +
+        '<td>'+esc(s.email||'—')+'</td>' +
+        '<td>'+esc(s.phone||'—')+'</td>' +
+        '<td>'+esc(s.filiere||'—')+'</td>' +
         '<td>'+dstr+'</td>' +
       '</tr>'
     );
@@ -1043,9 +1053,12 @@ function renderAdmin(){
       '</div></div>' +
       '<div class="admin-top"><div class="wrap-wide admin-top-inner">' +
         '<div><h2 class="admin-title">'+d.title+'</h2><p class="admin-sub">'+d.subtitle+'</p></div>' +
-        '<button class="btn btn-ghost btn-sm cut-sm" data-action="gomap">'+d.backToQuest+'</button>' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap;">' +
+          '<button class="btn btn-ghost btn-sm cut-sm" data-action="downloadpdf">'+d.downloadPdf+'</button>' +
+          '<button class="btn btn-ghost btn-sm cut-sm" data-action="gomap">'+d.backToQuest+'</button>' +
+        '</div>' +
       '</div></div>' +
-      '<div class="wrap-wide">' +
+      '<div class="wrap-wide" id="admin-pdf-target">' +
         '<div class="stat-grid">' +
           '<div class="stat-card"><div class="stat-num">'+total+'</div><div class="stat-label">'+d.total+'</div></div>' +
           '<div class="stat-card"><div class="stat-num">'+completed+'</div><div class="stat-label">'+d.completed+'</div></div>' +
@@ -1082,7 +1095,7 @@ function renderAdmin(){
         '<div class="admin-table-wrap">' +
           (list.length ? (
           '<table class="admin-table"><thead><tr>' +
-            '<th>'+d.name+'</th><th>'+d.fieldCol+'</th><th>'+d.yearCol+'</th><th>'+d.langCol+'</th><th>'+d.levelCol+'</th><th>'+d.xpCol+'</th><th>'+d.statusCol+'</th><th>'+d.joinedCol+'</th>' +
+            '<th>'+d.name+'</th><th>'+d.fieldCol+'</th><th>'+d.yearCol+'</th><th>'+d.langCol+'</th><th>'+d.levelCol+'</th><th>'+d.xpCol+'</th><th>'+d.statusCol+'</th><th>'+d.emailCol+'</th><th>'+d.phoneCol+'</th><th>'+d.filiereCol+'</th><th>'+d.joinedCol+'</th>' +
           '</tr></thead><tbody>'+rows+'</tbody></table>'
           ) : '<div class="admin-empty">'+d.empty+'</div>') +
         '</div>' +
@@ -1169,8 +1182,50 @@ function mountAdminCharts(){
 }
 
 /* ===================================================================
-   CONFETTI
+   ADMIN PDF EXPORT
 =================================================================== */
+async function downloadDashboardPDF(){
+  if(typeof html2canvas === "undefined" || typeof window.jspdf === "undefined"){
+    showToast("PDF export not available (libraries failed to load)");
+    return;
+  }
+  var el = document.querySelector(".admin-screen");
+  if(!el) return;
+
+  showToast(STATE.lang==="fr" ? "Génération du PDF…" : STATE.lang==="ar" ? "جارٍ إنشاء PDF…" : "Generating PDF…");
+
+  try{
+    var canvas = await html2canvas(el, { backgroundColor: "#07080a", scale: 2, useCORS: true });
+    var imgData = canvas.toDataURL("image/png");
+    var jsPDFCtor = window.jspdf.jsPDF;
+    var pdf = new jsPDFCtor({ orientation: "p", unit: "pt", format: "a4" });
+
+    var pageWidth = pdf.internal.pageSize.getWidth();
+    var pageHeight = pdf.internal.pageSize.getHeight();
+    var imgWidth = pageWidth;
+    var imgHeight = canvas.height * imgWidth / canvas.width;
+
+    var heightLeft = imgHeight;
+    var position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while(heightLeft > 0){
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    var dateStr = new Date().toISOString().slice(0,10);
+    pdf.save("csc-dashboard-" + dateStr + ".pdf");
+    showToast(STATE.lang==="fr" ? "PDF téléchargé ✓" : STATE.lang==="ar" ? "تم تحميل PDF ✓" : "PDF downloaded ✓");
+  }catch(err){
+    console.error("PDF export failed:", err);
+    showToast("⚠ PDF export failed");
+  }
+}
 function fireConfetti(){
   var canvas = document.getElementById("confetti-canvas");
   var ctx = canvas.getContext("2d");
@@ -1239,19 +1294,27 @@ function render(){
 =================================================================== */
 function persistProgress(){
   persist(); // still fine — local-only player draft (resume point on this device)
+  var p = STATE.player;
+  var fieldToSend = p.field || "—";
+  if(isOtherFieldSelected(p) && p.fieldOther && p.fieldOther.trim()){
+    fieldToSend = p.fieldOther.trim();
+  }
   upsertStudent({
-    id: STATE.player.id,
-    name: STATE.player.name || "New Explorer",
-    field: STATE.player.field || "—",
-    year: STATE.player.year || "—",
+    id: p.id,
+    name: p.name || "New Explorer",
+    field: fieldToSend,
+    year: p.year || "—",
     language: STATE.lang,
-    levelIndex: STATE.player.levelIndex,
-    xp: STATE.player.xp,
-    completed: STATE.player.completed,
-    character: STATE.player.characters[0] || "",
-    skills: STATE.player.skills,
-    badge: STATE.player.badge,
-    createdAt: STATE.player.createdAt
+    levelIndex: p.levelIndex,
+    xp: p.xp,
+    completed: p.completed,
+    character: p.characters[0] || "",
+    skills: p.skills,
+    badge: p.badge,
+    email: p.email || "",
+    phone: p.phone || "",
+    filiere: p.filiere || "",
+    createdAt: p.createdAt
   });
 }
 
@@ -1285,13 +1348,12 @@ document.addEventListener("click", function(e){
       setScreen(LEVEL_KEY_ORDER[idx]);
       break;
     case "setfield":
-      p.field = el.getAttribute("data-val"); persist(); render();
-      break;
-    case "setyear":
-      p.year = el.getAttribute("data-val"); persist(); render();
+      p.field = el.getAttribute("data-val");
+      if(!isOtherFieldSelected(p)) p.fieldOther = "";
+      persist(); render();
       break;
     case "submit0":
-      if(p.name.trim() && p.field && p.year){
+      if(canSubmitLevel0()){
         p.levelIndex = 1; p.xp += 100; persistProgress();
         showToast("+100 XP");
         setScreen("map");
@@ -1324,7 +1386,7 @@ document.addEventListener("click", function(e){
       }
       break;
     case "submit3":
-      if(p.icebreakerA.trim().length > 2){
+      if(canSubmitLevel3()){
         p.levelIndex = 4; p.xp += 250; persistProgress();
         showToast("+250 XP");
         setScreen("map");
@@ -1342,6 +1404,9 @@ document.addEventListener("click", function(e){
     case "download":
       showToast(STATE.lang==="fr" ? "Fais une capture d'écran de ta carte ✨" : STATE.lang==="ar" ? "التقط لقطة شاشة لبطاقتك ✨" : "Screenshot your card to save it ✨");
       break;
+    case "downloadpdf":
+      downloadDashboardPDF();
+      break;
     case "adminsearch": break; // handled on input
     default: break;
   }
@@ -1358,15 +1423,35 @@ document.addEventListener("input", function(e){
       var hudName = document.querySelector(".hud-name");
       if(hudName) hudName.textContent = p.name || "PLAYER";
       var submit0Btn = document.querySelector('[data-action="submit0"]');
-      if(submit0Btn) submit0Btn.disabled = !(p.name.trim().length>0 && p.field && p.year);
+      if(submit0Btn) submit0Btn.disabled = !canSubmitLevel0();
+      break;
+    case "setyear":
+      p.year = el.value; persist();
+      var submit0Btn2 = document.querySelector('[data-action="submit0"]');
+      if(submit0Btn2) submit0Btn2.disabled = !canSubmitLevel0();
+      break;
+    case "setfieldother":
+      p.fieldOther = el.value; persist();
+      var submit0Btn3 = document.querySelector('[data-action="submit0"]');
+      if(submit0Btn3) submit0Btn3.disabled = !canSubmitLevel0();
       break;
     case "setcontribution":
       p.contribution = el.value; persist();
       break;
-    case "setice":
-      p.icebreakerA = el.value; persist();
-      var btn = document.querySelector('[data-action="submit3"]');
-      if(btn) btn.disabled = !(p.icebreakerA.trim().length > 2);
+    case "setemail":
+      p.email = el.value; persist();
+      var submit3BtnA = document.querySelector('[data-action="submit3"]');
+      if(submit3BtnA) submit3BtnA.disabled = !canSubmitLevel3();
+      break;
+    case "setphone":
+      p.phone = el.value; persist();
+      var submit3BtnB = document.querySelector('[data-action="submit3"]');
+      if(submit3BtnB) submit3BtnB.disabled = !canSubmitLevel3();
+      break;
+    case "setfiliere":
+      p.filiere = el.value; persist();
+      var submit3BtnC = document.querySelector('[data-action="submit3"]');
+      if(submit3BtnC) submit3BtnC.disabled = !canSubmitLevel3();
       break;
     case "adminsearch":
       STATE.admin.search = el.value; render();
